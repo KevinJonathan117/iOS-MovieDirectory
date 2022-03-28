@@ -16,10 +16,24 @@ struct ContentView: View {
     }
     
     var body: some View {
-        List(viewModel.movies) { movie in
-            Text(movie.name)
+        NavigationView {
+            VStack {
+                List(viewModel.movies) { movie in
+                    NavigationLink {
+                        DetailView()
+                    } label: {
+                        Text(movie.name)
+                    }
+                }
+                .onAppear(perform: viewModel.getMovies)
+            }
+            .navigationTitle("Movie List")
+            .navigationBarItems(trailing: NavigationLink {
+                WishlistView()
+            } label: {
+                Text("Loved")
+            })
         }
-        .onAppear(perform: viewModel.getMovies)
     }
 }
 

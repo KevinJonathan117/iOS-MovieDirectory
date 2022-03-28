@@ -15,6 +15,8 @@
 		5D62DB3827F1A2AB00CF9518 /* AppDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D62DB3727F1A2AB00CF9518 /* AppDataService.swift */; };
 		5D62DB4027F1B1E400CF9518 /* MovieDirectoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D62DB3F27F1B1E400CF9518 /* MovieDirectoryTests.swift */; };
 		5D62DB4A27F1B3B700CF9518 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D62DB4927F1B3B700CF9518 /* ContentViewModel.swift */; };
+		5D62DB4C27F1B8C600CF9518 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D62DB4B27F1B8C600CF9518 /* DetailView.swift */; };
+		5D62DB4E27F1BA9900CF9518 /* WishlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D62DB4D27F1BA9900CF9518 /* WishlistView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +40,8 @@
 		5D62DB3D27F1B1E400CF9518 /* MovieDirectoryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieDirectoryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D62DB3F27F1B1E400CF9518 /* MovieDirectoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDirectoryTests.swift; sourceTree = "<group>"; };
 		5D62DB4927F1B3B700CF9518 /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
+		5D62DB4B27F1B8C600CF9518 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
+		5D62DB4D27F1BA9900CF9518 /* WishlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishlistView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +122,8 @@
 			children = (
 				5D62DB2727F1946900CF9518 /* MovieDirectoryApp.swift */,
 				5D62DB2927F1946900CF9518 /* ContentView.swift */,
+				5D62DB4B27F1B8C600CF9518 /* DetailView.swift */,
+				5D62DB4D27F1BA9900CF9518 /* WishlistView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -231,6 +237,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D62DB2A27F1946900CF9518 /* ContentView.swift in Sources */,
+				5D62DB4E27F1BA9900CF9518 /* WishlistView.swift in Sources */,
+				5D62DB4C27F1B8C600CF9518 /* DetailView.swift in Sources */,
 				5D62DB2827F1946900CF9518 /* MovieDirectoryApp.swift in Sources */,
 				5D62DB3627F1A12E00CF9518 /* Movie.swift in Sources */,
 				5D62DB3827F1A2AB00CF9518 /* AppDataService.swift in Sources */,
