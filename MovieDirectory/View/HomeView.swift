@@ -26,22 +26,26 @@ struct HomeView: View {
                     HStack {
                         ForEach(viewModel.movies) { movie in
                             VStack {
-                                AsyncImage(
-                                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath)"),
-                                    content: { image in
-                                        image.resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 120, height: 160)
-                                    },
-                                    placeholder: {
-                                        Spacer()
-                                        
-                                        ProgressView()
-                                            .frame(width: 120, height: 160)
-                                        
-                                        Spacer()
-                                    }
-                                )
+                                NavigationLink {
+                                    DetailView()
+                                } label: {
+                                    AsyncImage(
+                                        url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath)"),
+                                        content: { image in
+                                            image.resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 120, height: 160)
+                                        },
+                                        placeholder: {
+                                            Spacer()
+                                            
+                                            ProgressView()
+                                                .frame(width: 120, height: 160)
+                                            
+                                            Spacer()
+                                        }
+                                    )
+                                }
                                 
                                 Spacer()
                                 
