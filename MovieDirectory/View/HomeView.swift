@@ -38,10 +38,7 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        let movie = Movie(name: "Shawshank", rating: 9.2, year: 2017)
         let viewModel = HomeView.ViewModel()
-        viewModel.movies = [movie]
-        
-        return HomeView(viewModel: viewModel)
+        HomeView(viewModel: viewModel)
     }
 }
