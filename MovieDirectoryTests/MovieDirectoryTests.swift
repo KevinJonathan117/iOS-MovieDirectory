@@ -16,10 +16,10 @@ class MockDataService: DataService {
 
 class MovieDirectoryTests: XCTestCase {
     
-    var sut: ContentView.ViewModel!
+    var sut: HomeView.ViewModel!
 
     override func setUpWithError() throws {
-        sut = ContentView.ViewModel(dataService: MockDataService())
+        sut = HomeView.ViewModel(dataService: MockDataService())
     }
 
     override func tearDownWithError() throws {
