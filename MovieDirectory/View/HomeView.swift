@@ -21,10 +21,10 @@ struct HomeView: View {
                     NavigationLink {
                         DetailView()
                     } label: {
-                        Text(movie.name)
+                        Text(movie.title)
                     }
                 }
-                .onAppear(perform: viewModel.getMovies)
+                .onAppear(perform: viewModel.getPopularMovies)
             }
             .navigationTitle("Movie List")
             .navigationBarItems(trailing: NavigationLink {

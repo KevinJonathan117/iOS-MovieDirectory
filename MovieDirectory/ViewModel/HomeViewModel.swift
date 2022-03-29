@@ -17,8 +17,8 @@ extension HomeView {
             self.dataService = dataService
         }
         
-        func getMovies() {
-            dataService.getMovies { [weak self] movies in
+        func getPopularMovies() {
+            dataService.getPopularMovies { [weak self] movies in
                 self?.movies = movies
             }
         }

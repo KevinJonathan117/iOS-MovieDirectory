@@ -7,10 +7,12 @@
 
 import Foundation
 
-struct Movie: Identifiable {
-    let id = UUID()
-    
-    var name: String = ""
-    var rating: Double = 0.0
-    var year: Int = 0
+struct MovieList: Decodable {
+    let results: [Movie]
+}
+
+struct Movie: Identifiable, Decodable {
+    let id: Int
+    let title: String
+    let posterPath: String
 }
