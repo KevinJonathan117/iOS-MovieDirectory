@@ -1,5 +1,5 @@
 //
-//  ContentViewModel.swift
+//  HomeViewModel.swift
 //  MovieDirectory
 //
 //  Created by Kevin Jonathan on 28/03/22.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension ContentView {
+extension HomeView {
     class ViewModel: ObservableObject {
         @Published var movies = [Movie]()
         
