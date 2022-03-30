@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5D547E1127F4425000E492A2 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D547E1027F4425000E492A2 /* DetailViewModel.swift */; };
+		5D547E1327F45E3400E492A2 /* Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D547E1227F45E3400E492A2 /* Genre.swift */; };
 		5D62DB2827F1946900CF9518 /* MovieDirectoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D62DB2727F1946900CF9518 /* MovieDirectoryApp.swift */; };
 		5D62DB2A27F1946900CF9518 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D62DB2927F1946900CF9518 /* ContentView.swift */; };
 		5D62DB2C27F1946B00CF9518 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D62DB2B27F1946B00CF9518 /* Assets.xcassets */; };
@@ -32,6 +34,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5D547E1027F4425000E492A2 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
+		5D547E1227F45E3400E492A2 /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Genre.swift; sourceTree = "<group>"; };
 		5D62DB2427F1946900CF9518 /* MovieDirectory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieDirectory.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D62DB2727F1946900CF9518 /* MovieDirectoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDirectoryApp.swift; sourceTree = "<group>"; };
 		5D62DB2927F1946900CF9518 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -126,6 +130,7 @@
 			children = (
 				5D62DB3727F1A2AB00CF9518 /* AppDataService.swift */,
 				5D62DB3527F1A12E00CF9518 /* Movie.swift */,
+				5D547E1227F45E3400E492A2 /* Genre.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -144,6 +149,7 @@
 			isa = PBXGroup;
 			children = (
 				5D62DB4927F1B3B700CF9518 /* HomeViewModel.swift */,
+				5D547E1027F4425000E492A2 /* DetailViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -261,6 +267,8 @@
 				5D62DB2A27F1946900CF9518 /* ContentView.swift in Sources */,
 				5D9111FB27F43D1C00E869C7 /* MovieGridList.swift in Sources */,
 				5D62DB4E27F1BA9900CF9518 /* WishlistView.swift in Sources */,
+				5D547E1327F45E3400E492A2 /* Genre.swift in Sources */,
+				5D547E1127F4425000E492A2 /* DetailViewModel.swift in Sources */,
 				5D62DB4C27F1B8C600CF9518 /* DetailView.swift in Sources */,
 				5D62DB2827F1946900CF9518 /* MovieDirectoryApp.swift in Sources */,
 				5D62DB3627F1A12E00CF9518 /* Movie.swift in Sources */,

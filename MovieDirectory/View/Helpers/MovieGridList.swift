@@ -17,7 +17,7 @@ struct MovieGridList: View {
                 ForEach(movies) { movie in
                     VStack {
                         NavigationLink {
-                            DetailView()
+                            DetailView(movie: movie)
                         } label: {
                             AsyncImage(
                                 url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath)"),
@@ -41,7 +41,7 @@ struct MovieGridList: View {
                         Spacer()
                         
                         NavigationLink {
-                            DetailView()
+                            DetailView(movie: movie)
                         } label: {
                             Text(movie.title)
                                 .multilineTextAlignment(.leading)
