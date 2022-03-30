@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct DetailView: View {
-    let movie: Movie
     @StateObject var viewModel: ViewModel
+    var movie: Movie
     
     init(movie: Movie, viewModel: ViewModel = .init()) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -61,7 +61,7 @@ struct DetailView: View {
                     Text(movie.title)
                         .font(.title2)
                         .bold()
-                    .multilineTextAlignment(.center)
+                        .multilineTextAlignment(.center)
                     
                     Text("Released on: \(viewModel.getDateFromString(date: movie.releaseDate).formatted(date: .long, time: .omitted))")
                         .foregroundColor(.gray)
@@ -88,6 +88,12 @@ struct DetailView: View {
             }
             .navigationTitle("Detail")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(trailing: Button {
+                print("Button Tapped")
+            } label: {
+                Label("Toggle Favorite", systemImage: movie.isWishlist ? "text.badge.minus" : "text.badge.plus")
+                    .labelStyle(.iconOnly)
+            })
             .onAppear(perform: viewModel.getAllGenres)
         }
     }
