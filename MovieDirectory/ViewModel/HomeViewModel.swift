@@ -22,6 +22,7 @@ extension HomeView {
         func getPopularMovies() {
             dataService.getPopularMovies { [weak self] movies in
                 self?.popularMovies = movies
+                print(self?.popularMovies)
             }
         }
         

@@ -95,7 +95,7 @@ struct DetailView: View {
 
 struct DetailView_Previews: PreviewProvider {
     static var previews: some View {
-        let movie = Movie(id: 0, title: "", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])
+        let movie = Movie()
         DetailView(movie: movie)
     }
 }
