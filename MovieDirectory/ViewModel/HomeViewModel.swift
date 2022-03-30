@@ -9,7 +9,9 @@ import Foundation
 
 extension HomeView {
     class ViewModel: ObservableObject {
-        @Published var movies = [Movie]()
+        @Published var popularMovies = [Movie]()
+        @Published var nowPlayingMovies = [Movie]()
+        @Published var upcomingMovies = [Movie]()
         
         let dataService: DataService
         
@@ -19,7 +21,19 @@ extension HomeView {
         
         func getPopularMovies() {
             dataService.getPopularMovies { [weak self] movies in
-                self?.movies = movies
+                self?.popularMovies = movies
+            }
+        }
+        
+        func getNowPlayingMovies() {
+            dataService.getNowPlayingMovies { [weak self] movies in
+                self?.nowPlayingMovies = movies
+            }
+        }
+        
+        func getUpcomingMovies() {
+            dataService.getUpcomingMovies { [weak self] movies in
+                self?.upcomingMovies = movies
             }
         }
     }
