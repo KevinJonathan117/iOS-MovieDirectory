@@ -23,6 +23,17 @@ struct HomeView: View {
                         .padding()
                         .font(.title2)
                     
+                    List {
+                        ForEach(viewModel.popularMovies) { movie in
+                            NavigationLink {
+                                DetailView(movie: movie)
+                            } label: {
+                                Text(movie.title)
+                            }
+                        }
+                    }
+                    .onAppear(perform: viewModel.getPopularMovies)
+                    
                     MovieGridList(movies: viewModel.popularMovies, function: viewModel.getPopularMovies)
                     
                     Text("Now Playing")

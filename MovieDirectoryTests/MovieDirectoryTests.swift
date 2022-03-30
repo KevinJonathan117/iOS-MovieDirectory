@@ -9,13 +9,16 @@ import XCTest
 @testable import MovieDirectory
 
 class MockDataService: DataService {
+    func getMyMovies(completion: @escaping ([Movie]) -> Void) {
+        completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
+    }
+    
     func getPopularMovies(completion: @escaping ([Movie]) -> Void) {
         completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
     }
     func getNowPlayingMovies(completion: @escaping ([Movie]) -> Void) {
         completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: []), Movie(id: 1, title: "Batman", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
     }
-    
     func getUpcomingMovies(completion: @escaping ([Movie]) -> Void) {
         completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
     }
@@ -28,15 +31,18 @@ class MovieDirectoryTests: XCTestCase {
     
     var homeSut: HomeView.ViewModel!
     var detailSut: DetailView.ViewModel!
+    var wishlistSut: WishlistView.ViewModel!
 
     override func setUpWithError() throws {
         homeSut = HomeView.ViewModel(dataService: MockDataService())
         detailSut = DetailView.ViewModel(dataService: MockDataService())
+        wishlistSut = WishlistView.ViewModel(dataService: MockDataService())
     }
 
     override func tearDownWithError() throws {
         homeSut = nil
         detailSut = nil
+        wishlistSut = nil
     }
     
     func test_getPopularMovies() throws {
@@ -63,4 +69,9 @@ class MovieDirectoryTests: XCTestCase {
         XCTAssertEqual(detailSut.genres.count, 3)
     }
 
+    func test_getMyMovies() throws {
+        XCTAssertTrue(wishlistSut.myMovies.isEmpty)
+        wishlistSut.getMyMovies()
+        XCTAssertEqual(wishlistSut.myMovies.count, 1)
+    }
 }
