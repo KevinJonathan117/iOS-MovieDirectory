@@ -22,7 +22,7 @@ extension MovieItem {
     @NSManaged public var backdropPath: String?
     @NSManaged public var overview: String?
     @NSManaged public var releaseDate: String?
-    @NSManaged public var genreIds: NSObject?
+    @NSManaged public var genreIds: [NSNumber]?
 
 }
 

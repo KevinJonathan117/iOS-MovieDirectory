@@ -128,12 +128,12 @@ class AppDataService: DataService {
         newItem.backdropPath = backdropPath
         newItem.overview = overview
         newItem.releaseDate = releaseDate
-        newItem.genreIds = genreIds as NSObject
+        newItem.genreIds = genreIds as [NSNumber]
 
         do {
             try context.save()
         } catch {
-            print("Cannot create item")
+            print("Cannot add item")
         }
     }
 
