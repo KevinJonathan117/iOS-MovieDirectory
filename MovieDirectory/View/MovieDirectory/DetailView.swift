@@ -20,7 +20,7 @@ struct DetailView: View {
         ScrollView {
             VStack {
                 AsyncImage(
-                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.backdropPath)"),
+                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.backdropPath!)"),
                     content: { image in
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
@@ -91,7 +91,7 @@ struct DetailView: View {
             .navigationBarItems(trailing: Button {
                 print("Button Tapped")
             } label: {
-                Label("Toggle Favorite", systemImage: movie.isWishlist ? "text.badge.minus" : "text.badge.plus")
+                Label("Toggle Wishlist", systemImage: true ? "text.badge.minus" : "text.badge.plus")
                     .labelStyle(.iconOnly)
             })
             .onAppear(perform: viewModel.getAllGenres)
