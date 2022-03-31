@@ -9,7 +9,7 @@ import Foundation
 
 extension WishlistView {
     class ViewModel: ObservableObject {
-        @Published var myMovies = [Movie]()
+        @Published var myMovies = [MovieItem]()
         
         let dataService: DataService
         

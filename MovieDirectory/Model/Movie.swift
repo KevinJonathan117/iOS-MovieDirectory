@@ -15,7 +15,7 @@ struct Movie: Identifiable, Decodable {
     let id: Int
     let title: String
     let posterPath: String
-    let backdropPath: String?
+    var backdropPath: String?
     let overview: String
     let releaseDate: String
     let genreIds: [Int]
@@ -44,5 +44,15 @@ struct Movie: Identifiable, Decodable {
         self.overview = overview
         self.releaseDate = releaseDate
         self.genreIds = genreIds
+    }
+    
+    init(movieItem: MovieItem) {
+        self.id = Int(movieItem.id)
+        self.title = movieItem.title!
+        self.posterPath = movieItem.posterPath!
+        self.backdropPath = movieItem.backdropPath
+        self.overview = movieItem.overview!
+        self.releaseDate = movieItem.releaseDate!
+        self.genreIds = movieItem.genreIds as! [Int]
     }
 }

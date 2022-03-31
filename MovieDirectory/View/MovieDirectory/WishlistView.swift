@@ -16,34 +16,39 @@ struct WishlistView: View {
     
     var body: some View {
         VStack {
-            List(viewModel.myMovies) { movie in
-                NavigationLink {
-                    DetailView(movie: movie)
-                } label: {
-                    HStack {
-                        AsyncImage(
-                            url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath)"),
-                            content: { image in
-                                image.resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 120, height: 160)
-                                    .cornerRadius(8)
-                            },
-                            placeholder: {
-                                ProgressView()
-                                    .frame(width: 120, height: 160)
-                            }
-                        )
-                        Text(movie.title)
-                            .multilineTextAlignment(.leading)
-                        Spacer()
+            if viewModel.myMovies.count > 0 {
+                List(viewModel.myMovies) { movie in
+                    NavigationLink {
+                        DetailView(movie: Movie(movieItem: movie))
+                    } label: {
+                        HStack {
+                            AsyncImage(
+                                url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath!)"),
+                                content: { image in
+                                    image.resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 120, height: 160)
+                                        .cornerRadius(8)
+                                },
+                                placeholder: {
+                                    ProgressView()
+                                        .frame(width: 120, height: 160)
+                                }
+                            )
+                            Text(movie.title!)
+                                .multilineTextAlignment(.leading)
+                            Spacer()
+                        }
+                        
                     }
-                    
                 }
+            } else {
+                Text("No Wishlisted Movie")
             }
-            .onAppear(perform: viewModel.getMyMovies)
         }
         .navigationTitle("My Wishlist")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear(perform: viewModel.getMyMovies)
     }
 }
 

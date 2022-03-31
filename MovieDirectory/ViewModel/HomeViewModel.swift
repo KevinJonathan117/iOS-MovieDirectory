@@ -34,7 +34,6 @@ extension HomeView {
         func getUpcomingMovies() {
             dataService.getUpcomingMovies { [weak self] movies in
                 self?.upcomingMovies = movies
-                print(self?.upcomingMovies)
             }
         }
     }
