@@ -48,11 +48,11 @@ struct Movie: Identifiable, Decodable {
     
     init(movieItem: MovieItem) {
         self.id = Int(movieItem.id)
-        self.title = movieItem.title!
-        self.posterPath = movieItem.posterPath!
-        self.backdropPath = movieItem.backdropPath
-        self.overview = movieItem.overview!
-        self.releaseDate = movieItem.releaseDate!
-        self.genreIds = movieItem.genreIds as! [Int]
+        self.title = movieItem.title ?? ""
+        self.posterPath = movieItem.posterPath ?? ""
+        self.backdropPath = movieItem.backdropPath ?? ""
+        self.overview = movieItem.overview ?? ""
+        self.releaseDate = movieItem.releaseDate ?? ""
+        self.genreIds = movieItem.genreIds as? [Int] ?? []
     }
 }

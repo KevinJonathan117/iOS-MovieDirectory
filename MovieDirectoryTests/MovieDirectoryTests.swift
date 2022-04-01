@@ -16,14 +16,74 @@ class MockDataService: DataService {
     func getPopularMovies(completion: @escaping ([Movie]) -> Void) {
         completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
     }
+    
     func getNowPlayingMovies(completion: @escaping ([Movie]) -> Void) {
         completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: []), Movie(id: 1, title: "Batman", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
     }
+    
     func getUpcomingMovies(completion: @escaping ([Movie]) -> Void) {
         completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
     }
+    
     func getAllGenres(completion: @escaping ([Genre]) -> Void) {
         completion([Genre(id: 0, name: "Action"), Genre(id: 1, name: "Comedy"), Genre(id: 2, name: "Fantasy")])
+    }
+    
+    func getMyMovies() -> [MovieItem] {
+        let context = PersistenceController.shared.container.viewContext
+        do {
+            let movieData = try context.fetch(MovieItem.fetchRequest())
+            return movieData
+        } catch {
+            print("Cannot get all items")
+            return []
+        }
+    }
+    
+    func getWishlistStatus(title: String) -> Bool {
+        let context = PersistenceController.shared.container.viewContext
+        do {
+            let movieData = try context.fetch(MovieItem.fetchRequest())
+            let isWishlist = movieData.contains(where: { $0.title == title })
+            return isWishlist
+        } catch {
+            print("Cannot get all items before getting status")
+            return false
+        }
+    }
+
+    func addMyMovies(movie: Movie) -> Bool {
+        let context = PersistenceController.shared.container.viewContext
+        let newItem = MovieItem(context: context)
+        newItem.id = Int64(movie.id)
+        newItem.title = movie.title
+        newItem.posterPath = movie.posterPath
+        newItem.backdropPath = movie.backdropPath
+        newItem.overview = movie.overview
+        newItem.releaseDate = movie.releaseDate
+        newItem.genreIds = movie.genreIds as [NSNumber]
+
+        do {
+            try context.save()
+            return true
+        } catch {
+            print("Cannot add item")
+            return false
+        }
+    }
+
+    func deleteMyMovies(movie: Movie) -> Bool {
+        let context = PersistenceController.shared.container.viewContext
+        
+        do {
+            let movieData: MovieItem = getMyMovies().filter({ $0.title == movie.title })[0]
+            context.delete(movieData)
+            try context.save()
+            return true
+        } catch {
+            print("Cannot delete item")
+            return false
+        }
     }
 }
 
@@ -68,10 +128,14 @@ class MovieDirectoryTests: XCTestCase {
         detailSut.getAllGenres()
         XCTAssertEqual(detailSut.genres.count, 3)
     }
-
-    func test_getMyMovies() throws {
+    
+    func test_coreData() throws {
+        wishlistSut.myMovies = []
         XCTAssertTrue(wishlistSut.myMovies.isEmpty)
+        print(detailSut.addMyMovies(movie: Movie(title: "Shawshank")))
         wishlistSut.getMyMovies()
         XCTAssertEqual(wishlistSut.myMovies.count, 1)
+        print(detailSut.deleteMyMovies(movie: Movie(title: "Shawshank")))
+        wishlistSut.getMyMovies()
     }
 }

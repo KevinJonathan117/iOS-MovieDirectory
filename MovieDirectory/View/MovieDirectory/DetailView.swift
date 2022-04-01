@@ -9,18 +9,17 @@ import SwiftUI
 
 struct DetailView: View {
     @StateObject var viewModel: ViewModel
-    var movie: Movie
     
     init(movie: Movie, viewModel: ViewModel = .init()) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        self.movie = movie
+        viewModel.movie = movie
     }
     
     var body: some View {
         ScrollView {
             VStack {
                 AsyncImage(
-                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.backdropPath!)"),
+                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.backdropPath!)"),
                     content: { image in
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
@@ -37,7 +36,7 @@ struct DetailView: View {
                 )
                 
                 AsyncImage(
-                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath)"),
+                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.posterPath)"),
                     content: { image in
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
@@ -58,18 +57,18 @@ struct DetailView: View {
                 .padding(.bottom, -100)
                 
                 Group {
-                    Text(movie.title)
+                    Text(viewModel.movie.title)
                         .font(.title2)
                         .bold()
                         .multilineTextAlignment(.center)
                     
-                    Text("Released on: \(viewModel.getDateFromString(date: movie.releaseDate).formatted(date: .long, time: .omitted))")
+                    Text("Released on: \(viewModel.getDateFromString(date: viewModel.movie.releaseDate).formatted(date: .long, time: .omitted))")
                         .foregroundColor(.gray)
                         .font(.subheadline)
                     
                     HStack {
                         ForEach(viewModel.genres) { genre in
-                            if movie.genreIds.contains(genre.id) {
+                            if viewModel.movie.genreIds.contains(genre.id) {
                                 Text(genre.name)
                                     .font(.caption)
                                     .bold()
@@ -81,7 +80,7 @@ struct DetailView: View {
                         }
                     }.onAppear(perform: viewModel.getAllGenres)
                     
-                    Text(movie.overview)
+                    Text(viewModel.movie.overview)
                 }
                 .padding([.top, .leading, .trailing])
                 
@@ -90,19 +89,19 @@ struct DetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(trailing: Button {
                 if viewModel.isWishlist {
-                    viewModel.deleteMyMovies(movie: movie)
-                    viewModel.getWishlistStatus(title: movie.title)
+                    print(viewModel.deleteMyMovies(movie: viewModel.movie))
+                    viewModel.getWishlistStatus(title: viewModel.movie.title)
+                    
                 } else {
-                    viewModel.addMyMovies(movie: movie)
-                    viewModel.getWishlistStatus(title: movie.title)
+                    print(viewModel.addMyMovies(movie: viewModel.movie))
+                    viewModel.getWishlistStatus(title: viewModel.movie.title)
                 }
-                print("Button Tapped")
             } label: {
                 Label("Toggle Wishlist", systemImage: viewModel.isWishlist ? "text.badge.minus" : "text.badge.plus")
                     .labelStyle(.iconOnly)
             })
             .onAppear {
-                viewModel.getWishlistStatus(title: movie.title)
+                viewModel.getWishlistStatus(title: viewModel.movie.title)
             }
         }
     }

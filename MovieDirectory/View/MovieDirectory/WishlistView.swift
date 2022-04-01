@@ -16,14 +16,14 @@ struct WishlistView: View {
     
     var body: some View {
         VStack {
-            if viewModel.myMovies.count > 0 {
+            if !viewModel.myMovies.isEmpty {
                 List(viewModel.myMovies) { movie in
                     NavigationLink {
                         DetailView(movie: Movie(movieItem: movie))
                     } label: {
                         HStack {
                             AsyncImage(
-                                url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath!)"),
+                                url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath ?? "")"),
                                 content: { image in
                                     image.resizable()
                                         .aspectRatio(contentMode: .fill)
@@ -35,7 +35,7 @@ struct WishlistView: View {
                                         .frame(width: 120, height: 160)
                                 }
                             )
-                            Text(movie.title!)
+                            Text(movie.title ?? "Default")
                                 .multilineTextAlignment(.leading)
                             Spacer()
                         }

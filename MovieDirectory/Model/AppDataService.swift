@@ -15,8 +15,8 @@ protocol DataService {
     func getAllGenres(completion: @escaping ([Genre]) -> Void)
     func getMyMovies() -> [MovieItem]
     func getWishlistStatus(title: String) -> Bool
-    func addMyMovies(movie: Movie)
-    func deleteMyMovies(movie: Movie)
+    func addMyMovies(movie: Movie) -> Bool
+    func deleteMyMovies(movie: Movie) -> Bool
 }
 
 class AppDataService: DataService {
@@ -135,7 +135,7 @@ class AppDataService: DataService {
         }
     }
 
-    func addMyMovies(movie: Movie) {
+    func addMyMovies(movie: Movie) -> Bool {
         let context = PersistenceController.shared.container.viewContext
         let newItem = MovieItem(context: context)
         newItem.id = Int64(movie.id)
@@ -148,20 +148,24 @@ class AppDataService: DataService {
 
         do {
             try context.save()
+            return true
         } catch {
             print("Cannot add item")
+            return false
         }
     }
 
-    func deleteMyMovies(movie: Movie) {
+    func deleteMyMovies(movie: Movie) -> Bool {
         let context = PersistenceController.shared.container.viewContext
+        let movieData: MovieItem = getMyMovies().filter({ $0.title == movie.title })[0]
+        context.delete(movieData)
         
         do {
-            let movieData: MovieItem = getMyMovies().filter({ $0.title == movie.title })[0]
-            context.delete(movieData)
             try context.save()
+            return true
         } catch {
             print("Cannot delete item")
+            return false
         }
     }
 }
