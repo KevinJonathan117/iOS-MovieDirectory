@@ -10,6 +10,7 @@ import Foundation
 extension DetailView {
     class ViewModel: ObservableObject {
         @Published var genres = [Genre]()
+        @Published var isWishlist = false
         
         let dataService: DataService
         
@@ -21,6 +22,18 @@ extension DetailView {
             dataService.getAllGenres { [weak self] genres in
                 self?.genres = genres
             }
+        }
+        
+        func getWishlistStatus(title: String) {
+            self.isWishlist = dataService.getWishlistStatus(title: title)
+        }
+        
+        func addMyMovies(movie: Movie) {
+            dataService.addMyMovies(movie: movie)
+        }
+        
+        func deleteMyMovies(movie: Movie) {
+            dataService.deleteMyMovies(movie: movie)
         }
         
         func getDateFromString(date: String) -> Date {

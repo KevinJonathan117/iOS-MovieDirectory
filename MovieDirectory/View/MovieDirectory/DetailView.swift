@@ -79,7 +79,7 @@ struct DetailView: View {
                                     .cornerRadius(8)
                             }
                         }
-                    }
+                    }.onAppear(perform: viewModel.getAllGenres)
                     
                     Text(movie.overview)
                 }
@@ -89,12 +89,21 @@ struct DetailView: View {
             .navigationTitle("Detail")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(trailing: Button {
+                if viewModel.isWishlist {
+                    viewModel.deleteMyMovies(movie: movie)
+                    viewModel.getWishlistStatus(title: movie.title)
+                } else {
+                    viewModel.addMyMovies(movie: movie)
+                    viewModel.getWishlistStatus(title: movie.title)
+                }
                 print("Button Tapped")
             } label: {
-                Label("Toggle Wishlist", systemImage: true ? "text.badge.minus" : "text.badge.plus")
+                Label("Toggle Wishlist", systemImage: viewModel.isWishlist ? "text.badge.minus" : "text.badge.plus")
                     .labelStyle(.iconOnly)
             })
-            .onAppear(perform: viewModel.getAllGenres)
+            .onAppear {
+                viewModel.getWishlistStatus(title: movie.title)
+            }
         }
     }
 }

@@ -48,7 +48,9 @@ struct WishlistView: View {
         }
         .navigationTitle("My Wishlist")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear(perform: viewModel.getMyMovies)
+        .onAppear {
+            viewModel.getMyMovies()
+        }
     }
 }
 

@@ -18,9 +18,7 @@ extension WishlistView {
         }
         
         func getMyMovies() {
-            dataService.getMyMovies { [weak self] movies in
-                self?.myMovies = movies
-            }
+            myMovies = dataService.getMyMovies()
         }
     }
 }

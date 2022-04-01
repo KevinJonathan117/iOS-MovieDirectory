@@ -13,7 +13,10 @@ protocol DataService {
     func getNowPlayingMovies(completion: @escaping ([Movie]) -> Void)
     func getUpcomingMovies(completion: @escaping ([Movie]) -> Void)
     func getAllGenres(completion: @escaping ([Genre]) -> Void)
-    func getMyMovies(completion: @escaping ([MovieItem]) -> Void)
+    func getMyMovies() -> [MovieItem]
+    func getWishlistStatus(title: String) -> Bool
+    func addMyMovies(movie: Movie)
+    func deleteMyMovies(movie: Movie)
 }
 
 class AppDataService: DataService {
@@ -109,26 +112,39 @@ class AppDataService: DataService {
         task.resume()
     }
     
-    func getMyMovies(completion: @escaping ([MovieItem]) -> Void) {
+    func getMyMovies() -> [MovieItem] {
         let context = PersistenceController.shared.container.viewContext
         do {
             let movieData = try context.fetch(MovieItem.fetchRequest())
-            completion(movieData)
+            return movieData
         } catch {
             print("Cannot get all items")
+            return []
+        }
+    }
+    
+    func getWishlistStatus(title: String) -> Bool {
+        let context = PersistenceController.shared.container.viewContext
+        do {
+            let movieData = try context.fetch(MovieItem.fetchRequest())
+            let isWishlist = movieData.contains(where: { $0.title == title })
+            return isWishlist
+        } catch {
+            print("Cannot get all items before getting status")
+            return false
         }
     }
 
-    func addMyMovies(id: Int, title: String, posterPath: String, backdropPath: String, overview: String, releaseDate: String, genreIds: [Int]) {
+    func addMyMovies(movie: Movie) {
         let context = PersistenceController.shared.container.viewContext
         let newItem = MovieItem(context: context)
-        newItem.id = Int64(id)
-        newItem.title = title
-        newItem.posterPath = posterPath
-        newItem.backdropPath = backdropPath
-        newItem.overview = overview
-        newItem.releaseDate = releaseDate
-        newItem.genreIds = genreIds as [NSNumber]
+        newItem.id = Int64(movie.id)
+        newItem.title = movie.title
+        newItem.posterPath = movie.posterPath
+        newItem.backdropPath = movie.backdropPath
+        newItem.overview = movie.overview
+        newItem.releaseDate = movie.releaseDate
+        newItem.genreIds = movie.genreIds as [NSNumber]
 
         do {
             try context.save()
@@ -137,11 +153,12 @@ class AppDataService: DataService {
         }
     }
 
-    func deleteMyMovies(item: MovieItem) {
+    func deleteMyMovies(movie: Movie) {
         let context = PersistenceController.shared.container.viewContext
-        context.delete(item)
-
+        
         do {
+            let movieData: MovieItem = getMyMovies().filter({ $0.title == movie.title })[0]
+            context.delete(movieData)
             try context.save()
         } catch {
             print("Cannot delete item")
