@@ -150,9 +150,9 @@
 				5D547E1F27F5799500E492A2 /* MovieItem */,
 				5D547E1627F5732A00E492A2 /* Model.xcdatamodeld */,
 				5D62DB3727F1A2AB00CF9518 /* AppDataService.swift */,
+				5D547E1927F5779500E492A2 /* PersistenceController.swift */,
 				5D62DB3527F1A12E00CF9518 /* Movie.swift */,
 				5D547E1227F45E3400E492A2 /* Genre.swift */,
-				5D547E1927F5779500E492A2 /* PersistenceController.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";

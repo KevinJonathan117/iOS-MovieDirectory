@@ -97,7 +97,7 @@ struct DetailView: View {
                     viewModel.getWishlistStatus(title: viewModel.movie.title)
                 }
             } label: {
-                Label("Toggle Wishlist", systemImage: viewModel.isWishlist ? "text.badge.minus" : "text.badge.plus")
+                Label("Toggle Wishlist", systemImage: viewModel.isWishlist ? "star.fill" : "star")
                     .labelStyle(.iconOnly)
             })
             .onAppear {
