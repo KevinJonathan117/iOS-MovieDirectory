@@ -10,7 +10,6 @@ import SwiftUI
 struct MovieGridList: View {
     let title: String
     let movies: [Movie]
-    let function: () -> Void
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -62,7 +61,6 @@ struct MovieGridList: View {
                     
                 }
             }
-            .onAppear(perform: function)
             .frame(height: 250)
         .padding(.leading)
         }
@@ -72,6 +70,6 @@ struct MovieGridList: View {
 struct MovieGridList_Previews: PreviewProvider {
     static var previews: some View {
         let viewModel = HomeView.ViewModel()
-        MovieGridList(title: "Popular", movies: viewModel.popularMovies, function: viewModel.getPopularMovies)
+        MovieGridList(title: "Popular", movies: viewModel.popularMovies)
     }
 }

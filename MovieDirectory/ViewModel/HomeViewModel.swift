@@ -17,6 +17,13 @@ extension HomeView {
         
         init(dataService: DataService = AppDataService()) {
             self.dataService = dataService
+            getAllMovies()
+        }
+        
+        func getAllMovies() {
+            getPopularMovies()
+            getNowPlayingMovies()
+            getUpcomingMovies()
         }
         
         func getPopularMovies() {

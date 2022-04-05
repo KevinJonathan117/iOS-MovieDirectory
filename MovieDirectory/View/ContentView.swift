@@ -17,7 +17,7 @@ struct ContentView: View {
             
             WishlistView()
                 .tabItem {
-                    Label("Wishlist", systemImage: "list.dash")
+                    Label("Wishlist", systemImage: "star.fill")
                 }
         }
     }

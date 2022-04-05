@@ -16,16 +16,22 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading) {
-                    MovieGridList(title: "Popular", movies: viewModel.popularMovies, function: viewModel.getPopularMovies)
+            List {
+                VStack {
+                    MovieGridList(title: "Popular", movies: viewModel.popularMovies)
                     
-                    MovieGridList(title: "Now Playing", movies: viewModel.nowPlayingMovies, function: viewModel.getNowPlayingMovies)
+                    MovieGridList(title: "Now Playing", movies: viewModel.nowPlayingMovies)
                     
-                    MovieGridList(title: "Upcoming", movies: viewModel.upcomingMovies, function: viewModel.getUpcomingMovies)
+                    MovieGridList(title: "Upcoming", movies: viewModel.upcomingMovies)
                 }
-                .navigationTitle("Movie List")
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
+            .listStyle(.plain)
+            .refreshable {
+                viewModel.getAllMovies()
+            }
+            .navigationTitle("Movie List")
         }
     }
 }
