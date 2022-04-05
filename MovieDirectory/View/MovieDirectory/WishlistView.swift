@@ -15,41 +15,44 @@ struct WishlistView: View {
     }
     
     var body: some View {
-        VStack {
-            if !viewModel.myMovies.isEmpty {
-                List(viewModel.myMovies) { movie in
-                    NavigationLink {
-                        DetailView(movie: Movie(movieItem: movie))
-                    } label: {
-                        HStack {
-                            AsyncImage(
-                                url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath ?? "")"),
-                                content: { image in
-                                    image.resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 120, height: 160)
-                                        .cornerRadius(8)
-                                },
-                                placeholder: {
-                                    ProgressView()
-                                        .frame(width: 120, height: 160)
-                                }
-                            )
-                            Text(movie.title ?? "Default")
-                                .multilineTextAlignment(.leading)
-                            Spacer()
+        NavigationView {
+            VStack {
+                if !viewModel.myMovies.isEmpty {
+                    List(viewModel.myMovies) { movie in
+                        NavigationLink {
+                            DetailView(movie: Movie(movieItem: movie))
+                        } label: {
+                            HStack {
+                                AsyncImage(
+                                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath ?? "")"),
+                                    content: { image in
+                                        image.resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 120, height: 160)
+                                            .cornerRadius(8)
+                                    },
+                                    placeholder: {
+                                        ProgressView()
+                                            .frame(width: 120, height: 160)
+                                    }
+                                )
+                                Text(movie.title ?? "Default")
+                                    .multilineTextAlignment(.leading)
+                                Spacer()
+                            }
+                            
                         }
-                        
                     }
+                } else {
+                    Text("No Wishlisted Movie")
                 }
-            } else {
-                Text("No Wishlisted Movie")
             }
-        }
-        .navigationTitle("My Wishlist")
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            viewModel.getMyMovies()
+            
+            .onAppear {
+                viewModel.getMyMovies()
+            }
+            .navigationTitle("My Wishlist")
+            .navigationBarTitleDisplayMode(.large)
         }
     }
 }

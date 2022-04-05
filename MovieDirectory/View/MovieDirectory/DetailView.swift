@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DetailView: View {
     @StateObject var viewModel: ViewModel
+    @State private var showingAlert = false
     
     init(movie: Movie, viewModel: ViewModel = .init()) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -96,10 +97,13 @@ struct DetailView: View {
                     print(viewModel.addMyMovies(movie: viewModel.movie))
                     viewModel.getWishlistStatus(title: viewModel.movie.title)
                 }
+                showingAlert = true
             } label: {
                 Label("Toggle Wishlist", systemImage: viewModel.isWishlist ? "star.fill" : "star")
                     .labelStyle(.iconOnly)
-            })
+            }).alert(viewModel.isWishlist ? "Added to Wishlist" : "Deleted from Wishlist", isPresented: $showingAlert) {
+                Button("Got it!", role: .cancel) { }
+            }
             .onAppear {
                 viewModel.getWishlistStatus(title: viewModel.movie.title)
             }

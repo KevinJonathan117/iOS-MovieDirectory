@@ -9,7 +9,17 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        HomeView()
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("Browse", systemImage: "list.dash")
+                }
+            
+            WishlistView()
+                .tabItem {
+                    Label("Wishlist", systemImage: "list.dash")
+                }
+        }
     }
 }
 

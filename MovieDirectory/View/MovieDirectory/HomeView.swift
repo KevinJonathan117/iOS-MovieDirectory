@@ -18,33 +18,13 @@ struct HomeView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading) {
-                    Text("Popular")
-                        .fontWeight(.bold)
-                        .padding()
-                        .font(.title2)
+                    MovieGridList(title: "Popular", movies: viewModel.popularMovies, function: viewModel.getPopularMovies)
                     
-                    MovieGridList(movies: viewModel.popularMovies, function: viewModel.getPopularMovies)
+                    MovieGridList(title: "Now Playing", movies: viewModel.nowPlayingMovies, function: viewModel.getNowPlayingMovies)
                     
-                    Text("Now Playing")
-                        .fontWeight(.bold)
-                        .padding()
-                        .font(.title2)
-                    
-                    MovieGridList(movies: viewModel.nowPlayingMovies, function: viewModel.getNowPlayingMovies)
-                    
-                    Text("Upcoming")
-                        .fontWeight(.bold)
-                        .padding()
-                        .font(.title2)
-                    
-                    MovieGridList(movies: viewModel.upcomingMovies, function: viewModel.getUpcomingMovies)
+                    MovieGridList(title: "Upcoming", movies: viewModel.upcomingMovies, function: viewModel.getUpcomingMovies)
                 }
                 .navigationTitle("Movie List")
-                .navigationBarItems(trailing: NavigationLink {
-                    WishlistView()
-                } label: {
-                    Text("Wishlist")
-            })
             }
         }
     }

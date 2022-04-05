@@ -137,5 +137,6 @@ class MovieDirectoryTests: XCTestCase {
         XCTAssertEqual(wishlistSut.myMovies.count, 1)
         print(detailSut.deleteMyMovies(movie: Movie(title: "Shawshank")))
         wishlistSut.getMyMovies()
+        XCTAssertTrue(wishlistSut.myMovies.isEmpty)
     }
 }
