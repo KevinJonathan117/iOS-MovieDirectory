@@ -6,22 +6,63 @@
 //
 
 import XCTest
+import Combine
 @testable import MovieDirectory
 
 class MockDataService: DataService {
+    let baseUrl = "https://api.themoviedb.org/3"
+    
+    func handleMovieApiCall(url: URL) -> AnyPublisher<[Movie], Never> {
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map { data, response in
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    let movies = try decoder.decode(MovieList.self, from: data)
+                    return movies.results
+                }
+                catch {
+                    print(error)
+                    return []
+                }
+            }
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
+    }
+    
+    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "\(baseUrl)/movie/popular?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+            return Just([]).eraseToAnyPublisher()
+        }
+        
+        return handleMovieApiCall(url: url)
+    }
+    
+    func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "\(baseUrl)/movie/now_playing?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+            return Just([]).eraseToAnyPublisher()
+        }
+        
+        return handleMovieApiCall(url: url)
+    }
+    
+    func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "\(baseUrl)/movie/upcoming?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+            return Just([]).eraseToAnyPublisher()
+        }
+        
+        return handleMovieApiCall(url: url)
+    }
+    
+    func getMoviesBySearch(query: String) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "\(baseUrl)/search/movie?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&query=\(query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!)") else {
+            return Just([]).eraseToAnyPublisher()
+        }
+        
+        return handleMovieApiCall(url: url)
+    }
+    
     func getMyMovies(completion: @escaping ([Movie]) -> Void) {
-        completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
-    }
-    
-    func getPopularMovies(completion: @escaping ([Movie]) -> Void) {
-        completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
-    }
-    
-    func getNowPlayingMovies(completion: @escaping ([Movie]) -> Void) {
-        completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: []), Movie(id: 1, title: "Batman", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
-    }
-    
-    func getUpcomingMovies(completion: @escaping ([Movie]) -> Void) {
         completion([Movie(id: 0, title: "Shawshank", posterPath: "", backdropPath: "", overview: "", releaseDate: "", genreIds: [])])
     }
     
@@ -51,7 +92,7 @@ class MockDataService: DataService {
             return false
         }
     }
-
+    
     func addMyMovies(movie: Movie) -> Bool {
         let context = PersistenceController.shared.container.viewContext
         let newItem = MovieItem(context: context)
@@ -62,7 +103,7 @@ class MockDataService: DataService {
         newItem.overview = movie.overview
         newItem.releaseDate = movie.releaseDate
         newItem.genreIds = movie.genreIds as [NSNumber]
-
+        
         do {
             try context.save()
             return true
@@ -71,7 +112,7 @@ class MockDataService: DataService {
             return false
         }
     }
-
+    
     func deleteMyMovies(movie: Movie) -> Bool {
         let context = PersistenceController.shared.container.viewContext
         
@@ -92,13 +133,15 @@ class MovieDirectoryTests: XCTestCase {
     var homeSut: HomeView.ViewModel!
     var detailSut: DetailView.ViewModel!
     var wishlistSut: WishlistView.ViewModel!
-
+    
+    private var cancellables: [AnyCancellable?] = []
+    
     override func setUpWithError() throws {
         homeSut = HomeView.ViewModel(dataService: MockDataService())
         detailSut = DetailView.ViewModel(dataService: MockDataService())
         wishlistSut = WishlistView.ViewModel(dataService: MockDataService())
     }
-
+    
     override func tearDownWithError() throws {
         homeSut = nil
         detailSut = nil
@@ -107,20 +150,36 @@ class MovieDirectoryTests: XCTestCase {
     
     func test_getPopularMovies() throws {
         XCTAssertTrue(homeSut.popularMovies.isEmpty)
-        homeSut.getPopularMovies()
-        XCTAssertEqual(homeSut.popularMovies.count, 1)
+        
+        lazy var popularMoviesPublisher: AnyPublisher<[Movie], Never> = {
+            homeSut.$popularPage
+                .flatMap { popularPage -> AnyPublisher<[Movie], Never> in
+                    self.homeSut.dataService.getPopularMovies(page: popularPage)
+                }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }()
+        
+        cancellables.append(popularMoviesPublisher.sink(receiveValue: { [weak self] movies in
+            self?.homeSut.popularMovies.append(contentsOf: movies)
+        }))
+        
+        homeSut.popularPage = 2
+        XCTAssertEqual(detailSut.genres.count, 0)
+        
+//        wait(for: [expectation], timeout: 1)
     }
     
     func test_getNowPlayingMovies() throws {
-        XCTAssertTrue(homeSut.nowPlayingMovies.isEmpty)
-        homeSut.getNowPlayingMovies()
-        XCTAssertEqual(homeSut.nowPlayingMovies.count, 2)
+        
     }
     
     func test_getUpcomingMovies() throws {
-        XCTAssertTrue(homeSut.upcomingMovies.isEmpty)
-        homeSut.getUpcomingMovies()
-        XCTAssertEqual(homeSut.upcomingMovies.count, 1)
+        
+    }
+    
+    func test_getSearchedMovies() throws {
+        
     }
     
     func test_getAllGenres() throws {

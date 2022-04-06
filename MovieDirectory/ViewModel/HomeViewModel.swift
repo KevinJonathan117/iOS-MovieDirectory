@@ -20,65 +20,64 @@ extension HomeView {
         @Published var nowPlayingPage: Int = 1
         @Published var upcomingPage: Int = 1
         
-        var cancellables: [AnyCancellable?] = []
+        private var cancellables = Set<AnyCancellable>()
         
         let dataService: DataService
         
-        private lazy var popularMoviesPublisher: AnyPublisher<[Movie], Never> = {
-            $popularPage
-                .flatMap { popularPage -> AnyPublisher<[Movie], Never> in
-                    self.dataService.getPopularMovies(page: popularPage)
-                }
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
-        }()
-        
-        private lazy var nowPlayingMoviesPublisher: AnyPublisher<[Movie], Never> = {
-            $nowPlayingPage
-                .flatMap { nowPlayingPage -> AnyPublisher<[Movie], Never> in
-                    self.dataService.getNowPlayingMovies(page: nowPlayingPage)
-                }
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
-        }()
-        
-        private lazy var upcomingMoviesPublisher: AnyPublisher<[Movie], Never> = {
-            $upcomingPage
-                .flatMap { upcomingPage -> AnyPublisher<[Movie], Never> in
-                    self.dataService.getUpcomingMovies(page: upcomingPage)
-                }
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
-        }()
-        
-        private lazy var searchedMoviesPublisher: AnyPublisher<[Movie], Never> = {
-            $searchText
-                .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
-                .flatMap { searchText -> AnyPublisher<[Movie], Never> in
-                    self.dataService.getMoviesBySearch(query: searchText.lowercased())
-                }
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
-        }()
-        
         init(dataService: DataService = AppDataService()) {
             self.dataService = dataService
-            self.cancellables.append(popularMoviesPublisher.sink(receiveValue: { [weak self] movies in
-                self?.popularMovies.append(contentsOf: movies)
-            }))
-            self.cancellables.append(nowPlayingMoviesPublisher.sink(receiveValue: { [weak self] movies in
-                self?.nowPlayingMovies.append(contentsOf: movies)
-            }))
-            self.cancellables.append(upcomingMoviesPublisher.sink(receiveValue: { [weak self] movies in
-                self?.upcomingMovies.append(contentsOf: movies)
-            }))
-            self.cancellables.append(searchedMoviesPublisher.sink(receiveValue: { [weak self] movies in
-                self?.searchedMovies = movies
-            }))
+            initObserver()
         }
         
         deinit {
             self.cancellables.removeAll()
+        }
+        
+        func initObserver() {
+            $popularPage
+                .removeDuplicates()
+                .flatMap { popularPage -> AnyPublisher<[Movie], Never> in
+                    self.dataService.getPopularMovies(page: popularPage)
+                }
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] movies in
+                    self?.popularMovies.append(contentsOf: movies)
+                }
+                .store(in: &cancellables)
+            
+            $nowPlayingPage
+                .removeDuplicates()
+                .flatMap { nowPlayingPage -> AnyPublisher<[Movie], Never> in
+                    self.dataService.getNowPlayingMovies(page: nowPlayingPage)
+                }
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] movies in
+                    self?.nowPlayingMovies.append(contentsOf: movies)
+                }
+                .store(in: &cancellables)
+            
+            $upcomingPage
+                .removeDuplicates()
+                .flatMap { upcomingPage -> AnyPublisher<[Movie], Never> in
+                    self.dataService.getUpcomingMovies(page: upcomingPage)
+                }
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] movies in
+                    self?.upcomingMovies.append(contentsOf: movies)
+                }
+                .store(in: &cancellables)
+            
+            $searchText
+                .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                .removeDuplicates()
+                .flatMap { searchText -> AnyPublisher<[Movie], Never> in
+                    self.dataService.getMoviesBySearch(query: searchText.lowercased())
+                }
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] movies in
+                    self?.searchedMovies = movies
+                }
+                .store(in: &cancellables)
         }
         
         func refreshAll() {
@@ -97,7 +96,7 @@ extension HomeView {
         func getNowPlayingMovies() {
             nowPlayingPage += 1
         }
-
+        
         func getUpcomingMovies() {
             upcomingPage += 1
         }
