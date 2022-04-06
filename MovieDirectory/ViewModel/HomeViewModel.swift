@@ -6,42 +6,85 @@
 //
 
 import Foundation
+import Combine
 
 extension HomeView {
     class ViewModel: ObservableObject {
         @Published var popularMovies = [Movie]()
         @Published var nowPlayingMovies = [Movie]()
         @Published var upcomingMovies = [Movie]()
+        @Published var searchText: String = ""
+        @Published var popularPage: Int = 1
+        @Published var nowPlayingPage: Int = 1
+        @Published var upcomingPage: Int = 1
+        
+        var cancellables: [AnyCancellable?] = []
         
         let dataService: DataService
         
+        private lazy var popularMoviesPublisher: AnyPublisher<[Movie], Never> = {
+            $popularPage
+                .flatMap { popularPage -> AnyPublisher<[Movie], Never> in
+                    self.dataService.getPopularMovies(page: popularPage)
+                }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }()
+        
+        private lazy var nowPlayingMoviesPublisher: AnyPublisher<[Movie], Never> = {
+            $nowPlayingPage
+                .flatMap { nowPlayingPage -> AnyPublisher<[Movie], Never> in
+                    self.dataService.getNowPlayingMovies(page: nowPlayingPage)
+                }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }()
+        
+        private lazy var upcomingMoviesPublisher: AnyPublisher<[Movie], Never> = {
+            $upcomingPage
+                .flatMap { upcomingPage -> AnyPublisher<[Movie], Never> in
+                    self.dataService.getUpcomingMovies(page: upcomingPage)
+                }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }()
+        
         init(dataService: DataService = AppDataService()) {
             self.dataService = dataService
-            getAllMovies()
+            self.cancellables.append(popularMoviesPublisher.sink(receiveValue: { [weak self] movies in
+                self?.popularMovies.append(contentsOf: movies)
+            }))
+            self.cancellables.append(nowPlayingMoviesPublisher.sink(receiveValue: { [weak self] movies in
+                self?.nowPlayingMovies.append(contentsOf: movies)
+            }))
+            self.cancellables.append(upcomingMoviesPublisher.sink(receiveValue: { [weak self] movies in
+                self?.upcomingMovies.append(contentsOf: movies)
+            }))
         }
         
-        func getAllMovies() {
-            getPopularMovies()
-            getNowPlayingMovies()
-            getUpcomingMovies()
+        deinit {
+            self.cancellables.removeAll()
+        }
+        
+        func refreshAll() {
+            popularMovies.removeAll()
+            nowPlayingMovies.removeAll()
+            upcomingMovies.removeAll()
+            popularPage = 1
+            nowPlayingPage = 1
+            upcomingPage = 1
         }
         
         func getPopularMovies() {
-            dataService.getPopularMovies { [weak self] movies in
-                self?.popularMovies = movies
-            }
+            popularPage += 1
         }
         
         func getNowPlayingMovies() {
-            dataService.getNowPlayingMovies { [weak self] movies in
-                self?.nowPlayingMovies = movies
-            }
+            nowPlayingPage += 1
         }
-        
+
         func getUpcomingMovies() {
-            dataService.getUpcomingMovies { [weak self] movies in
-                self?.upcomingMovies = movies
-            }
+            upcomingPage += 1
         }
     }
 }

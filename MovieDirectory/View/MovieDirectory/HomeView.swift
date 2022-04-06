@@ -18,19 +18,21 @@ struct HomeView: View {
         NavigationView {
             List {
                 VStack {
-                    MovieGridList(title: "Popular", movies: viewModel.popularMovies)
+                    MovieGridList(title: "Popular", movies: viewModel.popularMovies, loadMore: viewModel.getPopularMovies)
                     
-                    MovieGridList(title: "Now Playing", movies: viewModel.nowPlayingMovies)
+                    MovieGridList(title: "Now Playing", movies: viewModel.nowPlayingMovies, loadMore: viewModel.getNowPlayingMovies)
                     
-                    MovieGridList(title: "Upcoming", movies: viewModel.upcomingMovies)
+                    MovieGridList(title: "Upcoming", movies: viewModel.upcomingMovies, loadMore: viewModel.getUpcomingMovies)
                 }
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
             .listStyle(.plain)
             .refreshable {
-                viewModel.getAllMovies()
+                //viewModel.getAllMovies()
+                viewModel.refreshAll()
             }
+            .searchable(text: $viewModel.searchText)
             .navigationTitle("Movie List")
         }
     }

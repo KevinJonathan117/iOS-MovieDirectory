@@ -7,11 +7,12 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 protocol DataService {
-    func getPopularMovies(completion: @escaping ([Movie]) -> Void)
-    func getNowPlayingMovies(completion: @escaping ([Movie]) -> Void)
-    func getUpcomingMovies(completion: @escaping ([Movie]) -> Void)
+    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Never>
+    func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Never>
+    func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Never>
     func getAllGenres(completion: @escaping ([Genre]) -> Void)
     func getMyMovies() -> [MovieItem]
     func getWishlistStatus(title: String) -> Bool
@@ -20,80 +21,74 @@ protocol DataService {
 }
 
 class AppDataService: DataService {
-    func getPopularMovies(completion: @escaping ([Movie]) -> Void) {
-        let url = URL(string: "https://api.themoviedb.org/3/movie/popular?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=1")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-
-        let session = URLSession.shared
-        let task = session.dataTask(with: request) { (data, response, error) in
-            if let error = error {
-                print(error)
-            } else if let data = data {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                let movies = try! decoder.decode(MovieList.self, from: data)
-                DispatchQueue.main.async {
-                    completion(movies.results)
-                }
-            } else {
-                print("Unexpected Error")
-            }
+    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "https://api.themoviedb.org/3/movie/popular?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+            return Just([]).eraseToAnyPublisher()
         }
-        task.resume()
+        
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map { data, response in
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    let movies = try decoder.decode(MovieList.self, from: data)
+                    return movies.results
+                }
+                catch {
+                    return []
+                }
+            }
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
     }
     
-    func getNowPlayingMovies(completion: @escaping ([Movie]) -> Void) {
-        let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=1")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-
-        let session = URLSession.shared
-        let task = session.dataTask(with: request) { (data, response, error) in
-            if let error = error {
-                print(error)
-            } else if let data = data {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                let movies = try! decoder.decode(MovieList.self, from: data)
-                DispatchQueue.main.async {
-                    completion(movies.results)
-                }
-            } else {
-                print("Unexpected Error")
-            }
+    func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+            return Just([]).eraseToAnyPublisher()
         }
-        task.resume()
+        
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map { data, response in
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    let movies = try decoder.decode(MovieList.self, from: data)
+                    return movies.results
+                }
+                catch {
+                    return []
+                }
+            }
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
     }
     
-    func getUpcomingMovies(completion: @escaping ([Movie]) -> Void) {
-        let url = URL(string: "https://api.themoviedb.org/3/movie/upcoming?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=1")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-
-        let session = URLSession.shared
-        let task = session.dataTask(with: request) { (data, response, error) in
-            if let error = error {
-                print(error)
-            } else if let data = data {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                let movies = try! decoder.decode(MovieList.self, from: data)
-                DispatchQueue.main.async {
-                    completion(movies.results)
-                }
-            } else {
-                print("Unexpected Error")
-            }
+    func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "https://api.themoviedb.org/3/movie/upcoming?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+            return Just([]).eraseToAnyPublisher()
         }
-        task.resume()
+        
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map { data, response in
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    let movies = try decoder.decode(MovieList.self, from: data)
+                    return movies.results
+                }
+                catch {
+                    return []
+                }
+            }
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
     }
     
     func getAllGenres(completion: @escaping ([Genre]) -> Void) {
         let url = URL(string: "https://api.themoviedb.org/3/genre/movie/list?api_key=052510607330f148f377a72d1f5d8d26&language=en-US")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-
+        
         let session = URLSession.shared
         let task = session.dataTask(with: request) { (data, response, error) in
             if let error = error {
@@ -134,7 +129,7 @@ class AppDataService: DataService {
             return false
         }
     }
-
+    
     func addMyMovies(movie: Movie) -> Bool {
         let context = PersistenceController.shared.container.viewContext
         let newItem = MovieItem(context: context)
@@ -145,7 +140,7 @@ class AppDataService: DataService {
         newItem.overview = movie.overview
         newItem.releaseDate = movie.releaseDate
         newItem.genreIds = movie.genreIds as [NSNumber]
-
+        
         do {
             try context.save()
             return true
@@ -154,7 +149,7 @@ class AppDataService: DataService {
             return false
         }
     }
-
+    
     func deleteMyMovies(movie: Movie) -> Bool {
         let context = PersistenceController.shared.container.viewContext
         let movieData: MovieItem = getMyMovies().filter({ $0.title == movie.title })[0]
