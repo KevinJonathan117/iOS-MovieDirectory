@@ -41,7 +41,7 @@ struct HomeView: View {
                             } label: {
                                 HStack {
                                     AsyncImage(
-                                        url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath)"),
+                                        url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath ?? "")"),
                                         content: { image in
                                             image.resizable()
                                                 .aspectRatio(contentMode: .fill)
@@ -57,7 +57,6 @@ struct HomeView: View {
                                         .multilineTextAlignment(.leading)
                                     Spacer()
                                 }
-                                
                             }
                         }
                     } else {

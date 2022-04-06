@@ -34,6 +34,7 @@ class AppDataService: DataService {
                     return movies.results
                 }
                 catch {
+                    print(error)
                     return []
                 }
             }
@@ -66,7 +67,7 @@ class AppDataService: DataService {
     }
     
     func getMoviesBySearch(query: String) -> AnyPublisher<[Movie], Never> {
-        guard let url = URL(string: "\(baseUrl)/search/movie?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&query=\(query)") else {
+        guard let url = URL(string: "\(baseUrl)/search/movie?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&query=\(query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!)") else {
             return Just([]).eraseToAnyPublisher()
         }
         

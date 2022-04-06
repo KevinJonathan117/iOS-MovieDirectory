@@ -37,7 +37,7 @@ struct DetailView: View {
                 )
                 
                 AsyncImage(
-                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.posterPath)"),
+                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.posterPath ?? "")"),
                     content: { image in
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
