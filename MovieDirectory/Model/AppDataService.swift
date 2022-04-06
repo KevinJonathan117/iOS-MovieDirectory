@@ -13,6 +13,7 @@ protocol DataService {
     func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Never>
     func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Never>
     func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Never>
+    func getMoviesBySearch(query: String) -> AnyPublisher<[Movie], Never>
     func getAllGenres(completion: @escaping ([Genre]) -> Void)
     func getMyMovies() -> [MovieItem]
     func getWishlistStatus(title: String) -> Bool
@@ -21,11 +22,9 @@ protocol DataService {
 }
 
 class AppDataService: DataService {
-    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Never> {
-        guard let url = URL(string: "https://api.themoviedb.org/3/movie/popular?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
-            return Just([]).eraseToAnyPublisher()
-        }
-        
+    let baseUrl = "https://api.themoviedb.org/3"
+    
+    func handleMovieApiCall(url: URL) -> AnyPublisher<[Movie], Never> {
         return URLSession.shared.dataTaskPublisher(for: url)
             .map { data, response in
                 do {
@@ -40,52 +39,42 @@ class AppDataService: DataService {
             }
             .replaceError(with: [])
             .eraseToAnyPublisher()
+    }
+    
+    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "\(baseUrl)/movie/popular?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+            return Just([]).eraseToAnyPublisher()
+        }
+        
+        return handleMovieApiCall(url: url)
     }
     
     func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Never> {
-        guard let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+        guard let url = URL(string: "\(baseUrl)/movie/now_playing?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
             return Just([]).eraseToAnyPublisher()
         }
         
-        return URLSession.shared.dataTaskPublisher(for: url)
-            .map { data, response in
-                do {
-                    let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-                    let movies = try decoder.decode(MovieList.self, from: data)
-                    return movies.results
-                }
-                catch {
-                    return []
-                }
-            }
-            .replaceError(with: [])
-            .eraseToAnyPublisher()
+        return handleMovieApiCall(url: url)
     }
     
     func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Never> {
-        guard let url = URL(string: "https://api.themoviedb.org/3/movie/upcoming?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+        guard let url = URL(string: "\(baseUrl)/movie/upcoming?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
             return Just([]).eraseToAnyPublisher()
         }
         
-        return URLSession.shared.dataTaskPublisher(for: url)
-            .map { data, response in
-                do {
-                    let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-                    let movies = try decoder.decode(MovieList.self, from: data)
-                    return movies.results
-                }
-                catch {
-                    return []
-                }
-            }
-            .replaceError(with: [])
-            .eraseToAnyPublisher()
+        return handleMovieApiCall(url: url)
+    }
+    
+    func getMoviesBySearch(query: String) -> AnyPublisher<[Movie], Never> {
+        guard let url = URL(string: "\(baseUrl)/search/movie?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&query=\(query)") else {
+            return Just([]).eraseToAnyPublisher()
+        }
+        
+        return handleMovieApiCall(url: url)
     }
     
     func getAllGenres(completion: @escaping ([Genre]) -> Void) {
-        let url = URL(string: "https://api.themoviedb.org/3/genre/movie/list?api_key=052510607330f148f377a72d1f5d8d26&language=en-US")!
+        let url = URL(string: "\(baseUrl)/genre/movie/list?api_key=052510607330f148f377a72d1f5d8d26&language=en-US")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         

@@ -90,7 +90,7 @@ struct MovieGridList: View {
                 .padding(.trailing)
             }
         }
-        .frame(height: 270)
+        .frame(height: 300)
         .padding(.leading)
     }
 }

@@ -13,6 +13,8 @@ extension HomeView {
         @Published var popularMovies = [Movie]()
         @Published var nowPlayingMovies = [Movie]()
         @Published var upcomingMovies = [Movie]()
+        @Published var searchedMovies = [Movie]()
+        
         @Published var searchText: String = ""
         @Published var popularPage: Int = 1
         @Published var nowPlayingPage: Int = 1
@@ -49,6 +51,16 @@ extension HomeView {
                 .eraseToAnyPublisher()
         }()
         
+        private lazy var searchedMoviesPublisher: AnyPublisher<[Movie], Never> = {
+            $searchText
+                .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                .flatMap { searchText -> AnyPublisher<[Movie], Never> in
+                    self.dataService.getMoviesBySearch(query: searchText.lowercased())
+                }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }()
+        
         init(dataService: DataService = AppDataService()) {
             self.dataService = dataService
             self.cancellables.append(popularMoviesPublisher.sink(receiveValue: { [weak self] movies in
@@ -59,6 +71,9 @@ extension HomeView {
             }))
             self.cancellables.append(upcomingMoviesPublisher.sink(receiveValue: { [weak self] movies in
                 self?.upcomingMovies.append(contentsOf: movies)
+            }))
+            self.cancellables.append(searchedMoviesPublisher.sink(receiveValue: { [weak self] movies in
+                self?.searchedMovies = movies
             }))
         }
         

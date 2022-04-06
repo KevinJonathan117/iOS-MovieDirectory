@@ -16,21 +16,54 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                VStack {
-                    MovieGridList(title: "Popular", movies: viewModel.popularMovies, loadMore: viewModel.getPopularMovies)
-                    
-                    MovieGridList(title: "Now Playing", movies: viewModel.nowPlayingMovies, loadMore: viewModel.getNowPlayingMovies)
-                    
-                    MovieGridList(title: "Upcoming", movies: viewModel.upcomingMovies, loadMore: viewModel.getUpcomingMovies)
+            VStack {
+                if viewModel.searchText == "" {
+                    List {
+                        VStack {
+                            MovieGridList(title: "Popular", movies: viewModel.popularMovies, loadMore: viewModel.getPopularMovies)
+                            
+                            MovieGridList(title: "Now Playing", movies: viewModel.nowPlayingMovies, loadMore: viewModel.getNowPlayingMovies)
+                            
+                            MovieGridList(title: "Upcoming", movies: viewModel.upcomingMovies, loadMore: viewModel.getUpcomingMovies)
+                        }
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    }
+                    .listStyle(.plain)
+                    .refreshable {
+                        viewModel.refreshAll()
+                    }
+                } else {
+                    if !viewModel.searchedMovies.isEmpty {
+                        List(viewModel.searchedMovies) { movie in
+                            NavigationLink {
+                                DetailView(movie: movie)
+                            } label: {
+                                HStack {
+                                    AsyncImage(
+                                        url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath)"),
+                                        content: { image in
+                                            image.resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 120, height: 160)
+                                                .cornerRadius(8)
+                                        },
+                                        placeholder: {
+                                            ProgressView()
+                                                .frame(width: 120, height: 160)
+                                        }
+                                    )
+                                    Text(movie.title)
+                                        .multilineTextAlignment(.leading)
+                                    Spacer()
+                                }
+                                
+                            }
+                        }
+                    } else {
+                        Text("No Search Result")
+                    }
                 }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            }
-            .listStyle(.plain)
-            .refreshable {
-                //viewModel.getAllMovies()
-                viewModel.refreshAll()
             }
             .searchable(text: $viewModel.searchText)
             .navigationTitle("Movie List")
