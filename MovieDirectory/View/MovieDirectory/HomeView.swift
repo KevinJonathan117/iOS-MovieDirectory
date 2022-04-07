@@ -50,11 +50,14 @@ struct HomeView: View {
                             }
                         }
                     } else {
-                        Text("No Search Result")
+                        Text(viewModel.searchDialog)
                     }
                 }
             }
             .searchable(text: $viewModel.searchText)
+            .alert(isPresented: $viewModel.showErrorAlert) {
+                Alert(title: Text("Error"), message: Text(viewModel.alertDialog), dismissButton: .default(Text("OK")))
+                    }
             .navigationTitle("Movie List")
         }
     }

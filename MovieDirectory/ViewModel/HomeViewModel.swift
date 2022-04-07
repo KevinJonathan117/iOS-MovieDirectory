@@ -20,6 +20,10 @@ extension HomeView {
         @Published var nowPlayingPage: Int = 1
         @Published var upcomingPage: Int = 1
         
+        @Published var showErrorAlert = false
+        @Published var alertDialog = ""
+        @Published var searchDialog = ""
+        
         private var cancellables = Set<AnyCancellable>()
         
         let dataService: DataService
@@ -36,48 +40,140 @@ extension HomeView {
         func initObserver() {
             $popularPage
                 .removeDuplicates()
-                .flatMap { popularPage -> AnyPublisher<[Movie], Never> in
+                .flatMap { popularPage -> AnyPublisher<Available, Never> in
                     self.dataService.getPopularMovies(page: popularPage)
+                        .asResult()
                 }
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] movies in
-                    self?.popularMovies.append(contentsOf: movies)
+                .eraseToAnyPublisher()
+                .map { result -> [Movie] in
+                    if case .failure(let error) = result {
+                        self.showErrorAlert = true
+                        if case APIError.transportError(_) = error {
+                            self.alertDialog = "Transport Error"
+                            return []
+                        } else if case APIError.serverError(statusCode: _) = error {
+                            self.alertDialog = "Server Error"
+                                return []
+                        } else if case APIError.invalidRequestError("URL invalid") = error {
+                            self.alertDialog = "Invalid URL"
+                            return []
+                        } else {
+                            self.alertDialog = "Error Occured"
+                            return []
+                        }
+                    }
+                    if case .success(let movies) = result {
+                        return movies
+                    }
+                    return []
+                }
+                .sink { movies in
+                    self.popularMovies.append(contentsOf: movies)
                 }
                 .store(in: &cancellables)
             
             $nowPlayingPage
                 .removeDuplicates()
-                .flatMap { nowPlayingPage -> AnyPublisher<[Movie], Never> in
+                .flatMap { nowPlayingPage -> AnyPublisher<Available, Never> in
                     self.dataService.getNowPlayingMovies(page: nowPlayingPage)
+                        .asResult()
                 }
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] movies in
-                    self?.nowPlayingMovies.append(contentsOf: movies)
+                .eraseToAnyPublisher()
+                .map { result -> [Movie] in
+                    if case .failure(let error) = result {
+                        self.showErrorAlert = true
+                        if case APIError.transportError(_) = error {
+                            self.alertDialog = "Transport Error"
+                            return []
+                        } else if case APIError.serverError(statusCode: _) = error {
+                            self.alertDialog = "Server Error"
+                                return []
+                        } else if case APIError.invalidRequestError("URL invalid") = error {
+                            self.alertDialog = "Invalid URL"
+                            return []
+                        } else {
+                            self.alertDialog = "Error Occured"
+                            return []
+                        }
+                    }
+                    if case .success(let movies) = result {
+                        return movies
+                    }
+                    return []
+                }
+                .sink { movies in
+                    self.nowPlayingMovies.append(contentsOf: movies)
                 }
                 .store(in: &cancellables)
             
             $upcomingPage
                 .removeDuplicates()
-                .flatMap { upcomingPage -> AnyPublisher<[Movie], Never> in
+                .flatMap { upcomingPage -> AnyPublisher<Available, Never> in
                     self.dataService.getUpcomingMovies(page: upcomingPage)
+                        .asResult()
                 }
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] movies in
-                    self?.upcomingMovies.append(contentsOf: movies)
+                .eraseToAnyPublisher()
+                .map { result -> [Movie] in
+                    if case .failure(let error) = result {
+                        self.showErrorAlert = true
+                        if case APIError.transportError(_) = error {
+                            self.alertDialog = "Transport Error"
+                            return []
+                        } else if case APIError.serverError(statusCode: _) = error {
+                            self.alertDialog = "Server Error"
+                                return []
+                        } else if case APIError.invalidRequestError("URL invalid") = error {
+                            self.alertDialog = "Invalid URL"
+                            return []
+                        } else {
+                            self.alertDialog = "Error Occured"
+                            return []
+                        }
+                    }
+                    if case .success(let movies) = result {
+                        return movies
+                    }
+                    return []
+                }
+                .sink { movies in
+                    self.upcomingMovies.append(contentsOf: movies)
                 }
                 .store(in: &cancellables)
             
             $searchText
                 .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
                 .removeDuplicates()
-                .flatMap { searchText -> AnyPublisher<[Movie], Never> in
-                    self.dataService.getMoviesBySearch(query: searchText.lowercased())
+                .flatMap { searchText -> AnyPublisher<Available, Never> in
+                    self.dataService.getMoviesBySearch(query: searchText)
+                        .asResult()
                 }
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] movies in
-                    self?.searchedMovies = movies
+                .eraseToAnyPublisher()
+                .map { result -> [Movie] in
+                    if case .failure(let error) = result {
+                        if case APIError.transportError(_) = error {
+                            self.searchDialog = "Transport Error"
+                            return []
+                        } else if case APIError.serverError(statusCode: _) = error {
+                            self.searchDialog = "Server Error"
+                            return []
+                        } else if case APIError.invalidRequestError("URL invalid") = error {
+                            self.searchDialog = "Invalid URL"
+                            return []
+                        } else {
+                            self.searchDialog = "No Search Result"
+                            return []
+                        }
+                    }
+                    if case .success(let movies) = result {
+                        return movies
+                    }
+                    return []
                 }
-                .store(in: &cancellables)
+                .assign(to: &$searchedMovies)
         }
         
         func refreshAll() {

@@ -12,51 +12,79 @@ import Combine
 class MockDataService: DataService {
     let baseUrl = "https://api.themoviedb.org/3"
     
-    func handleMovieApiCall(url: URL) -> AnyPublisher<[Movie], Never> {
-        return URLSession.shared.dataTaskPublisher(for: url)
-            .map { data, response in
-                do {
-                    let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-                    let movies = try decoder.decode(MovieList.self, from: data)
-                    return movies.results
-                }
-                catch {
-                    print(error)
-                    return []
-                }
+    func handleMovieApiCall(url: URL) -> AnyPublisher<[Movie], Error> {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        let dataTaskPublisher = URLSession.shared.dataTaskPublisher(for: url)
+            .mapError { error -> Error in
+                return APIError.transportError(error)
             }
-            .replaceError(with: [])
+            .tryMap { (data, response) -> (data: Data, response: URLResponse) in
+                guard let urlResponse = response as? HTTPURLResponse else {
+                    throw APIError.invalidResponse
+                }
+                
+                if (200..<300) ~= urlResponse.statusCode {
+                }
+                else {
+                    if (500..<600) ~= urlResponse.statusCode {
+                        throw APIError.serverError(urlResponse.statusCode)
+                    }
+                }
+                return (data, response)
+            }
+        
+        return dataTaskPublisher
+            .tryCatch { error -> AnyPublisher<(data: Data, response: URLResponse), Error> in
+                if case APIError.serverError = error {
+                    return Just(())
+                        .delay(for: 3, scheduler: DispatchQueue.global())
+                        .flatMap { _ in
+                            return dataTaskPublisher
+                        }
+                        .retry(3)
+                        .eraseToAnyPublisher()
+                }
+                throw error
+            }
+            .map(\.data)
+            .decode(type: MovieList.self, decoder: decoder)
+            .map(\.results)
             .eraseToAnyPublisher()
     }
     
-    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Error> {
         guard let url = URL(string: "\(baseUrl)/movie/popular?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
-            return Just([]).eraseToAnyPublisher()
+            return Fail(error: APIError.invalidRequestError("URL invalid"))
+                .eraseToAnyPublisher()
         }
         
         return handleMovieApiCall(url: url)
     }
     
-    func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+    func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Error> {
         guard let url = URL(string: "\(baseUrl)/movie/now_playing?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
-            return Just([]).eraseToAnyPublisher()
+            return Fail(error: APIError.invalidRequestError("URL invalid"))
+                .eraseToAnyPublisher()
         }
         
         return handleMovieApiCall(url: url)
     }
     
-    func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Never> {
+    func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Error> {
         guard let url = URL(string: "\(baseUrl)/movie/upcoming?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
-            return Just([]).eraseToAnyPublisher()
+            return Fail(error: APIError.invalidRequestError("URL invalid"))
+                .eraseToAnyPublisher()
         }
         
         return handleMovieApiCall(url: url)
     }
     
-    func getMoviesBySearch(query: String) -> AnyPublisher<[Movie], Never> {
+    func getMoviesBySearch(query: String) -> AnyPublisher<[Movie], Error> {
         guard let url = URL(string: "\(baseUrl)/search/movie?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&query=\(query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!)") else {
-            return Just([]).eraseToAnyPublisher()
+            return Fail(error: APIError.invalidRequestError("URL invalid"))
+                .eraseToAnyPublisher()
         }
         
         return handleMovieApiCall(url: url)
@@ -134,7 +162,7 @@ class MovieDirectoryTests: XCTestCase {
     var detailSut: DetailView.ViewModel!
     var wishlistSut: WishlistView.ViewModel!
     
-    private var cancellables: [AnyCancellable?] = []
+    private var cancellables = Set<AnyCancellable>()
     
     override func setUpWithError() throws {
         homeSut = HomeView.ViewModel(dataService: MockDataService())
@@ -150,24 +178,106 @@ class MovieDirectoryTests: XCTestCase {
     
     func test_getPopularMovies() throws {
         XCTAssertTrue(homeSut.popularMovies.isEmpty)
+        var errorMsg: String = ""
         
-        lazy var popularMoviesPublisher: AnyPublisher<[Movie], Never> = {
-            homeSut.$popularPage
-                .flatMap { popularPage -> AnyPublisher<[Movie], Never> in
-                    self.homeSut.dataService.getPopularMovies(page: popularPage)
+        let errorExpect = expectation(description: "noError")
+        let successExpect = expectation(description: "results")
+        self.homeSut.popularMovies.removeAll()
+        homeSut.$popularPage
+            .removeDuplicates()
+            .flatMap { popularPage -> AnyPublisher<Available, Never> in
+                self.homeSut.dataService.getPopularMovies(page: popularPage)
+                    .asResult()
+            }
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .eraseToAnyPublisher()
+            .map { result -> [Movie] in
+                if case .failure(let error) = result {
+                    if case APIError.transportError(_) = error {
+                        errorMsg = "Transport Error"
+                        return []
+                    } else if case APIError.serverError(statusCode: _) = error {
+                        errorMsg = "Server Error"
+                            return []
+                    } else if case APIError.invalidRequestError("URL invalid") = error {
+                        errorMsg = "Invalid URL"
+                        return []
+                    } else {
+                        errorMsg = "Error Occured"
+                        return []
+                    }
                 }
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
-        }()
+                if case .success(let movies) = result {
+                    return movies
+                }
+                return []
+            }
+            .sink {
+                self.homeSut.popularMovies.removeAll()
+                XCTAssertEqual(errorMsg, "")
+                errorExpect.fulfill()
+                XCTAssertEqual(self.homeSut.popularMovies.count, 0)
+                self.homeSut.popularMovies.append(contentsOf: $0)
+                XCTAssertEqual(self.homeSut.popularMovies.count, 20)
+                successExpect.fulfill()
+            }
+            .store(in: &cancellables)
         
-        cancellables.append(popularMoviesPublisher.sink(receiveValue: { [weak self] movies in
-            self?.homeSut.popularMovies.append(contentsOf: movies)
-        }))
+        self.homeSut.popularPage += 1
         
-        homeSut.popularPage = 2
-        XCTAssertEqual(detailSut.genres.count, 0)
+        wait(for: [errorExpect, successExpect], timeout: 10)
+    }
+    
+    func test_getPopularMoviesFail() throws {
+        XCTAssertTrue(homeSut.popularMovies.isEmpty)
+        var errorMsg: String = ""
         
-//        wait(for: [expectation], timeout: 1)
+        let errorExpect = expectation(description: "hasError")
+        self.homeSut.popularMovies.removeAll()
+        homeSut.$popularPage
+            .removeDuplicates()
+            .flatMap { popularPage -> AnyPublisher<Available, Never> in
+                self.homeSut.dataService.getPopularMovies(page: popularPage)
+                    .asResult()
+            }
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .eraseToAnyPublisher()
+            .map { result -> [Movie] in
+                if case .failure(let error) = result {
+                    if case APIError.transportError(_) = error {
+                        errorMsg = "Transport Error"
+                        return []
+                    } else if case APIError.serverError(statusCode: _) = error {
+                        errorMsg = "Server Error"
+                            return []
+                    } else if case APIError.invalidRequestError("URL invalid") = error {
+                        errorMsg = "Invalid URL"
+                        return []
+                    } else {
+                        errorMsg = "Error Occured"
+                        return []
+                    }
+                }
+                if case .success(let movies) = result {
+                    return movies
+                }
+                return []
+            }
+            .sink {
+                self.homeSut.popularMovies.removeAll()
+                XCTAssertEqual(errorMsg, "Error Occured")
+                errorExpect.fulfill()
+                XCTAssertEqual(self.homeSut.popularMovies.count, 0)
+                self.homeSut.popularMovies.append(contentsOf: $0)
+                XCTAssertEqual(self.homeSut.popularMovies.count, 0)
+            }
+            .store(in: &cancellables)
+        
+        self.homeSut.popularPage = 0
+        
+        wait(for: [errorExpect], timeout: 10)
     }
     
     func test_getNowPlayingMovies() throws {
