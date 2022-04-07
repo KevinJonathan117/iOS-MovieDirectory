@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5D0C842227FE76B900E4B84C /* MoviePoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0C842127FE76B900E4B84C /* MoviePoster.swift */; };
 		5D547E1127F4425000E492A2 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D547E1027F4425000E492A2 /* DetailViewModel.swift */; };
 		5D547E1327F45E3400E492A2 /* Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D547E1227F45E3400E492A2 /* Genre.swift */; };
 		5D547E1527F4690300E492A2 /* WishlistViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D547E1427F4690300E492A2 /* WishlistViewModel.swift */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5D0C842127FE76B900E4B84C /* MoviePoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviePoster.swift; sourceTree = "<group>"; };
 		5D547E1027F4425000E492A2 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		5D547E1227F45E3400E492A2 /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Genre.swift; sourceTree = "<group>"; };
 		5D547E1427F4690300E492A2 /* WishlistViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishlistViewModel.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				5D9111FA27F43D1C00E869C7 /* MovieGridList.swift */,
+				5D0C842127FE76B900E4B84C /* MoviePoster.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -303,6 +306,7 @@
 				5D62DB3827F1A2AB00CF9518 /* AppDataService.swift in Sources */,
 				5D547E1827F5732A00E492A2 /* Model.xcdatamodeld in Sources */,
 				5D62DB4A27F1B3B700CF9518 /* HomeViewModel.swift in Sources */,
+				5D0C842227FE76B900E4B84C /* MoviePoster.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

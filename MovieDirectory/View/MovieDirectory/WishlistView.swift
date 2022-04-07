@@ -23,21 +23,11 @@ struct WishlistView: View {
                             DetailView(movie: Movie(movieItem: movie))
                         } label: {
                             HStack {
-                                AsyncImage(
-                                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath ?? "")"),
-                                    content: { image in
-                                        image.resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 120, height: 160)
-                                            .cornerRadius(8)
-                                    },
-                                    placeholder: {
-                                        ProgressView()
-                                            .frame(width: 120, height: 160)
-                                    }
-                                )
+                                MoviePoster(path: movie.posterPath ?? "")
+                                
                                 Text(movie.title ?? "Default")
                                     .multilineTextAlignment(.leading)
+                                
                                 Spacer()
                             }
                             

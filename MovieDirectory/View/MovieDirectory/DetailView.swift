@@ -19,14 +19,19 @@ struct DetailView: View {
     var body: some View {
         ScrollView {
             VStack {
-                AsyncImage(
-                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.backdropPath!)"),
-                    content: { image in
+                AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.backdropPath ?? "")")) { phase in
+                    if let image = phase.image {
                         image.resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: UIScreen.main.bounds.size.width)
-                    },
-                    placeholder: {
+                    } else if phase.error != nil {
+                        Spacer()
+                        
+                        EmptyView()
+                            .frame(width: UIScreen.main.bounds.size.width, height: 200)
+                        
+                        Spacer()
+                    } else {
                         Spacer()
                         
                         ProgressView()
@@ -34,26 +39,9 @@ struct DetailView: View {
                         
                         Spacer()
                     }
-                )
+                }
                 
-                AsyncImage(
-                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.posterPath ?? "")"),
-                    content: { image in
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 120, height: 160)
-                            .cornerRadius(8)
-                            .shadow(radius: 7)
-                    },
-                    placeholder: {
-                        Spacer()
-                        
-                        EmptyView()
-                            .frame(width: 120, height: 160)
-                        
-                        Spacer()
-                    }
-                )
+                MoviePoster(path: viewModel.movie.posterPath ?? "")
                 .offset(y: -100)
                 .padding(.bottom, -100)
                 

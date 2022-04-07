@@ -25,23 +25,7 @@ struct MovieGridList: View {
                             NavigationLink {
                                 DetailView(movie: movie)
                             } label: {
-                                AsyncImage(
-                                    url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath ?? "")"),
-                                    content: { image in
-                                        image.resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 120, height: 160)
-                                            .cornerRadius(8)
-                                    },
-                                    placeholder: {
-                                        Spacer()
-                                        
-                                        ProgressView()
-                                            .frame(width: 120, height: 160)
-                                        
-                                        Spacer()
-                                    }
-                                )
+                                MoviePoster(path: movie.posterPath ?? "")
                             }
                             
                             Spacer()
@@ -60,23 +44,9 @@ struct MovieGridList: View {
                         .padding(.trailing)
                     }
                     VStack {
-                        AsyncImage(
-                            url: URL(string: "https://image.tmdb.org/t/p/w500/"),
-                            content: { image in
-                                image.resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 120, height: 160)
-                                    .cornerRadius(8)
-                            },
-                            placeholder: {
-                                Spacer()
-                                
-                                ProgressView()
-                                    .frame(width: 120, height: 160)
-                                
-                                Spacer()
-                            }
-                        )
+                        Spacer()
+                        
+                        ProgressView()
                         
                         Spacer()
                         
