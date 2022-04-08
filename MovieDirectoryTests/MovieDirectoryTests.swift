@@ -281,15 +281,313 @@ class MovieDirectoryTests: XCTestCase {
     }
     
     func test_getNowPlayingMovies() throws {
+        XCTAssertTrue(homeSut.nowPlayingMovies.isEmpty)
+        var errorMsg: String = ""
         
+        let errorExpect = expectation(description: "noError")
+        let successExpect = expectation(description: "results")
+        self.homeSut.nowPlayingMovies.removeAll()
+        homeSut.$nowPlayingPage
+            .removeDuplicates()
+            .flatMap { nowPlayingPage -> AnyPublisher<Available, Never> in
+                self.homeSut.dataService.getNowPlayingMovies(page: nowPlayingPage)
+                    .asResult()
+            }
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .eraseToAnyPublisher()
+            .map { result -> [Movie] in
+                if case .failure(let error) = result {
+                    if case APIError.transportError(_) = error {
+                        errorMsg = "Transport Error"
+                        return []
+                    } else if case APIError.serverError(statusCode: _) = error {
+                        errorMsg = "Server Error"
+                            return []
+                    } else if case APIError.invalidRequestError("URL invalid") = error {
+                        errorMsg = "Invalid URL"
+                        return []
+                    } else {
+                        errorMsg = "Error Occured"
+                        return []
+                    }
+                }
+                if case .success(let movies) = result {
+                    return movies
+                }
+                return []
+            }
+            .sink {
+                self.homeSut.nowPlayingMovies.removeAll()
+                XCTAssertEqual(errorMsg, "")
+                errorExpect.fulfill()
+                XCTAssertEqual(self.homeSut.nowPlayingMovies.count, 0)
+                self.homeSut.nowPlayingMovies.append(contentsOf: $0)
+                XCTAssertEqual(self.homeSut.nowPlayingMovies.count, 20)
+                successExpect.fulfill()
+            }
+            .store(in: &cancellables)
+        
+        self.homeSut.nowPlayingPage += 1
+        
+        wait(for: [errorExpect, successExpect], timeout: 10)
+    }
+    
+    func test_getNowPlayingMoviesFail() throws {
+        XCTAssertTrue(homeSut.nowPlayingMovies.isEmpty)
+        var errorMsg: String = ""
+        
+        let errorExpect = expectation(description: "hasError")
+        self.homeSut.nowPlayingMovies.removeAll()
+        homeSut.$nowPlayingPage
+            .removeDuplicates()
+            .flatMap { nowPlayingPage -> AnyPublisher<Available, Never> in
+                self.homeSut.dataService.getNowPlayingMovies(page: nowPlayingPage)
+                    .asResult()
+            }
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .eraseToAnyPublisher()
+            .map { result -> [Movie] in
+                if case .failure(let error) = result {
+                    if case APIError.transportError(_) = error {
+                        errorMsg = "Transport Error"
+                        return []
+                    } else if case APIError.serverError(statusCode: _) = error {
+                        errorMsg = "Server Error"
+                            return []
+                    } else if case APIError.invalidRequestError("URL invalid") = error {
+                        errorMsg = "Invalid URL"
+                        return []
+                    } else {
+                        errorMsg = "Error Occured"
+                        return []
+                    }
+                }
+                if case .success(let movies) = result {
+                    return movies
+                }
+                return []
+            }
+            .sink {
+                self.homeSut.nowPlayingMovies.removeAll()
+                XCTAssertEqual(errorMsg, "Error Occured")
+                errorExpect.fulfill()
+                XCTAssertEqual(self.homeSut.nowPlayingMovies.count, 0)
+                self.homeSut.nowPlayingMovies.append(contentsOf: $0)
+                XCTAssertEqual(self.homeSut.nowPlayingMovies.count, 0)
+            }
+            .store(in: &cancellables)
+        
+        self.homeSut.nowPlayingPage = 0
+        
+        wait(for: [errorExpect], timeout: 10)
     }
     
     func test_getUpcomingMovies() throws {
+        XCTAssertTrue(homeSut.upcomingMovies.isEmpty)
+        var errorMsg: String = ""
         
+        let errorExpect = expectation(description: "noError")
+        let successExpect = expectation(description: "results")
+        self.homeSut.upcomingMovies.removeAll()
+        homeSut.$upcomingPage
+            .removeDuplicates()
+            .flatMap { upcomingPage -> AnyPublisher<Available, Never> in
+                self.homeSut.dataService.getUpcomingMovies(page: upcomingPage)
+                    .asResult()
+            }
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .eraseToAnyPublisher()
+            .map { result -> [Movie] in
+                if case .failure(let error) = result {
+                    if case APIError.transportError(_) = error {
+                        errorMsg = "Transport Error"
+                        return []
+                    } else if case APIError.serverError(statusCode: _) = error {
+                        errorMsg = "Server Error"
+                            return []
+                    } else if case APIError.invalidRequestError("URL invalid") = error {
+                        errorMsg = "Invalid URL"
+                        return []
+                    } else {
+                        errorMsg = "Error Occured"
+                        return []
+                    }
+                }
+                if case .success(let movies) = result {
+                    return movies
+                }
+                return []
+            }
+            .sink {
+                self.homeSut.upcomingMovies.removeAll()
+                XCTAssertEqual(errorMsg, "")
+                errorExpect.fulfill()
+                XCTAssertEqual(self.homeSut.upcomingMovies.count, 0)
+                self.homeSut.upcomingMovies.append(contentsOf: $0)
+                XCTAssertEqual(self.homeSut.upcomingMovies.count, 20)
+                successExpect.fulfill()
+            }
+            .store(in: &cancellables)
+        
+        self.homeSut.upcomingPage += 1
+        
+        wait(for: [errorExpect, successExpect], timeout: 10)
+    }
+    
+    func test_getUpcomingMoviesFail() throws {
+        XCTAssertTrue(homeSut.upcomingMovies.isEmpty)
+        var errorMsg: String = ""
+        
+        let errorExpect = expectation(description: "hasError")
+        self.homeSut.upcomingMovies.removeAll()
+        homeSut.$upcomingPage
+            .removeDuplicates()
+            .flatMap { upcomingPage -> AnyPublisher<Available, Never> in
+                self.homeSut.dataService.getUpcomingMovies(page: upcomingPage)
+                    .asResult()
+            }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+            .map { result -> [Movie] in
+                if case .failure(let error) = result {
+                    if case APIError.transportError(_) = error {
+                        errorMsg = "Transport Error"
+                        return []
+                    } else if case APIError.serverError(statusCode: _) = error {
+                        errorMsg = "Server Error"
+                            return []
+                    } else if case APIError.invalidRequestError("URL invalid") = error {
+                        errorMsg = "Invalid URL"
+                        return []
+                    } else {
+                        errorMsg = "Error Occured"
+                        return []
+                    }
+                }
+                if case .success(let movies) = result {
+                    return movies
+                }
+                return []
+            }
+            .sink {
+                self.homeSut.upcomingMovies.removeAll()
+                XCTAssertEqual(errorMsg, "Error Occured")
+                errorExpect.fulfill()
+                XCTAssertEqual(self.homeSut.upcomingMovies.count, 0)
+                self.homeSut.upcomingMovies.append(contentsOf: $0)
+                XCTAssertEqual(self.homeSut.upcomingMovies.count, 0)
+            }
+            .store(in: &cancellables)
+        
+        self.homeSut.upcomingPage = 1000
+        
+        wait(for: [errorExpect], timeout: 10)
     }
     
     func test_getSearchedMovies() throws {
+        XCTAssertTrue(homeSut.searchedMovies.isEmpty)
+        var errorMsg: String = ""
         
+        let errorExpect = expectation(description: "noError")
+        let successExpect = expectation(description: "results")
+        self.homeSut.searchedMovies.removeAll()
+        homeSut.$searchText
+            .removeDuplicates()
+            .flatMap { searchText -> AnyPublisher<Available, Never> in
+                self.homeSut.dataService.getMoviesBySearch(query: searchText)
+                    .asResult()
+            }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+            .map { result -> [Movie] in
+                if case .failure(let error) = result {
+                    if case APIError.transportError(_) = error {
+                        errorMsg = "Transport Error"
+                        return []
+                    } else if case APIError.serverError(statusCode: _) = error {
+                        errorMsg = "Server Error"
+                            return []
+                    } else if case APIError.invalidRequestError("URL invalid") = error {
+                        errorMsg = "Invalid URL"
+                        return []
+                    } else {
+                        errorMsg = "Error Occured"
+                        return []
+                    }
+                }
+                if case .success(let movies) = result {
+                    return movies
+                }
+                return []
+            }
+            .sink {
+                self.homeSut.searchedMovies.removeAll()
+                XCTAssertEqual(errorMsg, "")
+                errorExpect.fulfill()
+                XCTAssertEqual(self.homeSut.searchedMovies.count, 0)
+                self.homeSut.searchedMovies.append(contentsOf: $0)
+                XCTAssertEqual(self.homeSut.searchedMovies.count, 14)
+                successExpect.fulfill()
+            }
+            .store(in: &cancellables)
+        
+        self.homeSut.searchText = "Hello world"
+        
+        wait(for: [errorExpect, successExpect], timeout: 10)
+    }
+    
+    func test_getSearchedMoviesFail() throws {
+        XCTAssertTrue(homeSut.searchedMovies.isEmpty)
+        var errorMsg: String = ""
+        
+        let errorExpect = expectation(description: "hasError")
+        self.homeSut.searchedMovies.removeAll()
+        homeSut.$searchText
+            .removeDuplicates()
+            .flatMap { searchText -> AnyPublisher<Available, Never> in
+                self.homeSut.dataService.getMoviesBySearch(query: searchText)
+                    .asResult()
+            }
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .eraseToAnyPublisher()
+            .map { result -> [Movie] in
+                if case .failure(let error) = result {
+                    if case APIError.transportError(_) = error {
+                        errorMsg = "Transport Error"
+                        return []
+                    } else if case APIError.serverError(statusCode: _) = error {
+                        errorMsg = "Server Error"
+                            return []
+                    } else if case APIError.invalidRequestError("URL invalid") = error {
+                        errorMsg = "Invalid URL"
+                        return []
+                    } else {
+                        errorMsg = "Error Occured"
+                        return []
+                    }
+                }
+                if case .success(let movies) = result {
+                    return movies
+                }
+                return []
+            }
+            .sink {
+                self.homeSut.searchedMovies.removeAll()
+                XCTAssertEqual(errorMsg, "Error Occured")
+                errorExpect.fulfill()
+                XCTAssertEqual(self.homeSut.searchedMovies.count, 0)
+                self.homeSut.searchedMovies.append(contentsOf: $0)
+                XCTAssertEqual(self.homeSut.searchedMovies.count, 0)
+            }
+            .store(in: &cancellables)
+        
+        self.homeSut.searchText = "dfihsdiofhas"
+        
+        wait(for: [errorExpect], timeout: 10)
     }
     
     func test_getAllGenres() throws {
