@@ -30,7 +30,9 @@ extension HomeView {
         
         init(dataService: DataService = AppDataService()) {
             self.dataService = dataService
-            initObserver()
+            if dataService is AppDataService {
+                initObserver()
+            }
         }
         
         deinit {
