@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5D0C842227FE76B900E4B84C /* MoviePoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0C842127FE76B900E4B84C /* MoviePoster.swift */; };
+		5D40E8EE280515E000D705FE /* ClickableMovie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D40E8ED280515E000D705FE /* ClickableMovie.swift */; };
 		5D547E1127F4425000E492A2 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D547E1027F4425000E492A2 /* DetailViewModel.swift */; };
 		5D547E1327F45E3400E492A2 /* Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D547E1227F45E3400E492A2 /* Genre.swift */; };
 		5D547E1527F4690300E492A2 /* WishlistViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D547E1427F4690300E492A2 /* WishlistViewModel.swift */; };
@@ -41,6 +42,7 @@
 
 /* Begin PBXFileReference section */
 		5D0C842127FE76B900E4B84C /* MoviePoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviePoster.swift; sourceTree = "<group>"; };
+		5D40E8ED280515E000D705FE /* ClickableMovie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickableMovie.swift; sourceTree = "<group>"; };
 		5D547E1027F4425000E492A2 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		5D547E1227F45E3400E492A2 /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Genre.swift; sourceTree = "<group>"; };
 		5D547E1427F4690300E492A2 /* WishlistViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishlistViewModel.swift; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 			children = (
 				5D9111FA27F43D1C00E869C7 /* MovieGridList.swift */,
 				5D0C842127FE76B900E4B84C /* MoviePoster.swift */,
+				5D40E8ED280515E000D705FE /* ClickableMovie.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -297,6 +300,7 @@
 				5D9111FB27F43D1C00E869C7 /* MovieGridList.swift in Sources */,
 				5D62DB4E27F1BA9900CF9518 /* WishlistView.swift in Sources */,
 				5D547E1327F45E3400E492A2 /* Genre.swift in Sources */,
+				5D40E8EE280515E000D705FE /* ClickableMovie.swift in Sources */,
 				5D547E1127F4425000E492A2 /* DetailViewModel.swift in Sources */,
 				5D547E1527F4690300E492A2 /* WishlistViewModel.swift in Sources */,
 				5D62DB4C27F1B8C600CF9518 /* DetailView.swift in Sources */,

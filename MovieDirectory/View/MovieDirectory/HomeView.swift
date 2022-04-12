@@ -57,7 +57,7 @@ struct HomeView: View {
             .searchable(text: $viewModel.searchText)
             .alert(isPresented: $viewModel.showErrorAlert) {
                 Alert(title: Text("Error"), message: Text(viewModel.alertDialog), dismissButton: .default(Text("OK")))
-                    }
+            }
             .navigationTitle("Movie List")
         }
     }

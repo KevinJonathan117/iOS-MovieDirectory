@@ -10,39 +10,30 @@ import Combine
 @testable import MovieDirectory
 
 class MockDataService: DataService {
-    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Error> {
-        print("Popular: \(page)")
+    func getMoviesByCategory(category: String, page: Int) -> AnyPublisher<[Movie], Error> {
         guard page > 0 else {
             return Fail(error: APIError.serverError(500))
                 .delay(for: 3, scheduler: DispatchQueue.global())
                 .eraseToAnyPublisher()
         }
-        return Just([Movie(), Movie(), Movie()])
-            .delay(for: 3, scheduler: DispatchQueue.global())
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
         
-    }
-    
-    func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Error> {
-        guard page > 0 else {
-            return Fail(error: APIError.serverError(500))
+        if category == "popular" {
+            return Just([Movie(), Movie(), Movie()])
                 .delay(for: 3, scheduler: DispatchQueue.global())
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        } else if category == "now_playing" {
+            return Just([Movie(), Movie()])
+                .delay(for: 3, scheduler: DispatchQueue.global())
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        } else if category == "upcoming" {
+            return Just([Movie(), Movie(), Movie(), Movie()])
+                .delay(for: 3, scheduler: DispatchQueue.global())
+                .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         }
-        return Just([Movie(), Movie()])
-            .delay(for: 3, scheduler: DispatchQueue.global())
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
-    }
-    
-    func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Error> {
-        guard page > 0 else {
-            return Fail(error: APIError.serverError(500))
-                .delay(for: 3, scheduler: DispatchQueue.global())
-                .eraseToAnyPublisher()
-        }
-        return Just([Movie(), Movie(), Movie(), Movie()])
+        return Just([])
             .delay(for: 3, scheduler: DispatchQueue.global())
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
@@ -155,7 +146,7 @@ class MovieDirectoryTests: XCTestCase {
         homeSut.$popularPage
             .removeDuplicates()
             .flatMap { popularPage -> AnyPublisher<Available, Never> in
-                self.homeSut.dataService.getPopularMovies(page: popularPage)
+                self.homeSut.dataService.getMoviesByCategory(category: "popular", page: popularPage)
                     .asResult()
             }
             .receive(on: DispatchQueue.main)
@@ -206,7 +197,7 @@ class MovieDirectoryTests: XCTestCase {
         homeSut.$popularPage
             .removeDuplicates()
             .flatMap { popularPage -> AnyPublisher<Available, Never> in
-                self.homeSut.dataService.getPopularMovies(page: popularPage)
+                self.homeSut.dataService.getMoviesByCategory(category: "popular", page: popularPage)
                     .asResult()
             }
             .receive(on: DispatchQueue.main)
@@ -258,7 +249,7 @@ class MovieDirectoryTests: XCTestCase {
         homeSut.$nowPlayingPage
             .removeDuplicates()
             .flatMap { nowPlayingPage -> AnyPublisher<Available, Never> in
-                self.homeSut.dataService.getNowPlayingMovies(page: nowPlayingPage)
+                self.homeSut.dataService.getMoviesByCategory(category: "now_playing", page: nowPlayingPage)
                     .asResult()
             }
             .receive(on: DispatchQueue.main)
@@ -310,7 +301,7 @@ class MovieDirectoryTests: XCTestCase {
         homeSut.$nowPlayingPage
             .removeDuplicates()
             .flatMap { nowPlayingPage -> AnyPublisher<Available, Never> in
-                self.homeSut.dataService.getNowPlayingMovies(page: nowPlayingPage)
+                self.homeSut.dataService.getMoviesByCategory(category: "now_playing", page: nowPlayingPage)
                     .asResult()
             }
             .receive(on: DispatchQueue.main)
@@ -362,7 +353,7 @@ class MovieDirectoryTests: XCTestCase {
         homeSut.$upcomingPage
             .removeDuplicates()
             .flatMap { upcomingPage -> AnyPublisher<Available, Never> in
-                self.homeSut.dataService.getUpcomingMovies(page: upcomingPage)
+                self.homeSut.dataService.getMoviesByCategory(category: "upcoming", page: upcomingPage)
                     .asResult()
             }
             .receive(on: DispatchQueue.main)
@@ -414,7 +405,7 @@ class MovieDirectoryTests: XCTestCase {
         homeSut.$upcomingPage
             .removeDuplicates()
             .flatMap { upcomingPage -> AnyPublisher<Available, Never> in
-                self.homeSut.dataService.getNowPlayingMovies(page: upcomingPage)
+                self.homeSut.dataService.getMoviesByCategory(category: "upcoming", page: upcomingPage)
                     .asResult()
             }
             .receive(on: DispatchQueue.main)
@@ -568,7 +559,7 @@ class MovieDirectoryTests: XCTestCase {
     }
     
     func test_coreData() throws {
-        wishlistSut.myMovies = []
+        wishlistSut.myMovies.removeAll()
         XCTAssertTrue(wishlistSut.myMovies.isEmpty)
         print(detailSut.addMyMovies(movie: Movie(title: "Shawshank")))
         wishlistSut.getMyMovies()

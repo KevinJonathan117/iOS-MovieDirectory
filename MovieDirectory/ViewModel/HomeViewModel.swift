@@ -40,111 +40,67 @@ extension HomeView {
         }
         
         func initObserver() {
+            initPopularMoviesObserver()
+            initNowPlayingMoviesObserver()
+            initUpcomingMoviesObserver()
+            initSearchedMoviesObserver()
+        }
+        
+        func initPopularMoviesObserver() {
             $popularPage
                 .removeDuplicates()
                 .flatMap { popularPage -> AnyPublisher<Available, Never> in
-                    self.dataService.getPopularMovies(page: popularPage)
+                    self.dataService.getMoviesByCategory(category: "popular", page: popularPage)
                         .asResult()
                 }
                 .receive(on: DispatchQueue.main)
                 .eraseToAnyPublisher()
                 .map { result -> [Movie] in
-                    if case .failure(let error) = result {
-                        self.showErrorAlert = true
-                        if case APIError.transportError(_) = error {
-                            self.alertDialog = "Transport Error"
-                            return []
-                        } else if case APIError.serverError(statusCode: _) = error {
-                            self.alertDialog = "Server Error"
-                                return []
-                        } else if case APIError.invalidRequestError("URL invalid") = error {
-                            self.alertDialog = "Invalid URL"
-                            return []
-                        } else {
-                            self.alertDialog = "Error Occured"
-                            return []
-                        }
-                    }
-                    if case .success(let movies) = result {
-                        return movies
-                    }
-                    return []
+                    return self.getResultFromAPICall(result: result)
                 }
                 .sink { movies in
                     self.popularMovies.append(contentsOf: movies)
                 }
                 .store(in: &cancellables)
-            
+        }
+        
+        func initNowPlayingMoviesObserver() {
             $nowPlayingPage
                 .removeDuplicates()
                 .flatMap { nowPlayingPage -> AnyPublisher<Available, Never> in
-                    self.dataService.getNowPlayingMovies(page: nowPlayingPage)
+                    self.dataService.getMoviesByCategory(category: "now_playing", page: nowPlayingPage)
                         .asResult()
                 }
                 .receive(on: DispatchQueue.main)
                 .eraseToAnyPublisher()
                 .map { result -> [Movie] in
-                    if case .failure(let error) = result {
-                        self.showErrorAlert = true
-                        if case APIError.transportError(_) = error {
-                            self.alertDialog = "Transport Error"
-                            return []
-                        } else if case APIError.serverError(statusCode: _) = error {
-                            self.alertDialog = "Server Error"
-                                return []
-                        } else if case APIError.invalidRequestError("URL invalid") = error {
-                            self.alertDialog = "Invalid URL"
-                            return []
-                        } else {
-                            self.alertDialog = "Error Occured"
-                            return []
-                        }
-                    }
-                    if case .success(let movies) = result {
-                        return movies
-                    }
-                    return []
+                    return self.getResultFromAPICall(result: result)
                 }
                 .sink { movies in
                     self.nowPlayingMovies.append(contentsOf: movies)
                 }
                 .store(in: &cancellables)
-            
+        }
+        
+        func initUpcomingMoviesObserver() {
             $upcomingPage
                 .removeDuplicates()
                 .flatMap { upcomingPage -> AnyPublisher<Available, Never> in
-                    self.dataService.getUpcomingMovies(page: upcomingPage)
+                    self.dataService.getMoviesByCategory(category: "upcoming", page: upcomingPage)
                         .asResult()
                 }
                 .receive(on: DispatchQueue.main)
                 .eraseToAnyPublisher()
                 .map { result -> [Movie] in
-                    if case .failure(let error) = result {
-                        self.showErrorAlert = true
-                        if case APIError.transportError(_) = error {
-                            self.alertDialog = "Transport Error"
-                            return []
-                        } else if case APIError.serverError(statusCode: _) = error {
-                            self.alertDialog = "Server Error"
-                                return []
-                        } else if case APIError.invalidRequestError("URL invalid") = error {
-                            self.alertDialog = "Invalid URL"
-                            return []
-                        } else {
-                            self.alertDialog = "Error Occured"
-                            return []
-                        }
-                    }
-                    if case .success(let movies) = result {
-                        return movies
-                    }
-                    return []
+                    return self.getResultFromAPICall(result: result)
                 }
                 .sink { movies in
                     self.upcomingMovies.append(contentsOf: movies)
                 }
                 .store(in: &cancellables)
-            
+        }
+        
+        func initSearchedMoviesObserver() {
             $searchText
                 .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
                 .removeDuplicates()
@@ -176,6 +132,29 @@ extension HomeView {
                     return []
                 }
                 .assign(to: &$searchedMovies)
+        }
+        
+        func getResultFromAPICall(result: Available) -> [Movie] {
+            if case .failure(let error) = result {
+                self.showErrorAlert = true
+                if case APIError.transportError(_) = error {
+                    self.alertDialog = "Transport Error"
+                    return []
+                } else if case APIError.serverError(statusCode: _) = error {
+                    self.alertDialog = "Server Error"
+                        return []
+                } else if case APIError.invalidRequestError("URL invalid") = error {
+                    self.alertDialog = "Invalid URL"
+                    return []
+                } else {
+                    self.alertDialog = "Error Occured"
+                    return []
+                }
+            }
+            if case .success(let movies) = result {
+                return movies
+            }
+            return []
         }
         
         func refreshAll() {

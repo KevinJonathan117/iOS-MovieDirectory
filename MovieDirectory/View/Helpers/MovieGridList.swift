@@ -14,54 +14,42 @@ struct MovieGridList: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(title)
-                .fontWeight(.bold)
-                .font(.title2)
-                .padding(.vertical)
+            TitleView()
             ScrollView (.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(movies) { movie in
-                        VStack {
-                            NavigationLink {
-                                DetailView(movie: movie)
-                            } label: {
-                                MoviePoster(path: movie.posterPath ?? "")
-                            }
-                            
-                            Spacer()
-                            
-                            NavigationLink {
-                                DetailView(movie: movie)
-                            } label: {
-                                Text(movie.title)
-                                    .multilineTextAlignment(.leading)
-                                    .foregroundColor(.primary)
-                            }
-                            .frame(width: 120)
-                            
-                            Spacer()
-                        }
-                        .padding(.trailing)
+                        ClickableMovie(movie: movie)
                     }
-                    VStack {
-                        Spacer()
-                        
-                        ProgressView()
-                        
-                        Spacer()
-                        
-                        Text("")
-                            .multilineTextAlignment(.leading)
-                            .foregroundColor(.primary)
-                    }
-                    .frame(width: 120)
-                    .onAppear(perform: loadMore)
+                    MovieLoaderView()
                 }
                 .padding(.trailing)
             }
         }
         .frame(height: 300)
         .padding(.leading)
+    }
+    
+    @ViewBuilder private func TitleView() -> some View {
+        Text(title)
+            .fontWeight(.bold)
+            .font(.title2)
+            .padding(.vertical)
+    }
+    
+    @ViewBuilder private func MovieLoaderView() -> some View {
+        VStack {
+            Spacer()
+            
+            ProgressView()
+            
+            Spacer()
+            
+            Text("")
+                .multilineTextAlignment(.leading)
+                .foregroundColor(.primary)
+        }
+        .frame(width: 120)
+        .onAppear(perform: loadMore)
     }
 }
 

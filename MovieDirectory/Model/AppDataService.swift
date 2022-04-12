@@ -19,9 +19,7 @@ enum APIError: LocalizedError {
 }
 
 protocol DataService {
-    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Error>
-    func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Error>
-    func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Error>
+    func getMoviesByCategory(category: String, page: Int) -> AnyPublisher<[Movie], Error>
     func getMoviesBySearch(query: String) -> AnyPublisher<[Movie], Error>
     func getAllGenres(completion: @escaping ([Genre]) -> Void)
     func getMyMovies() -> [MovieItem]
@@ -75,26 +73,8 @@ class AppDataService: DataService {
             .eraseToAnyPublisher()
     }
     
-    func getPopularMovies(page: Int) -> AnyPublisher<[Movie], Error> {
-        guard let url = URL(string: "\(baseUrl)/movie/popular?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
-            return Fail(error: APIError.invalidRequestError("URL invalid"))
-                .eraseToAnyPublisher()
-        }
-        
-        return handleMovieApiCall(url: url)
-    }
-    
-    func getNowPlayingMovies(page: Int) -> AnyPublisher<[Movie], Error> {
-        guard let url = URL(string: "\(baseUrl)/movie/now_playing?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
-            return Fail(error: APIError.invalidRequestError("URL invalid"))
-                .eraseToAnyPublisher()
-        }
-        
-        return handleMovieApiCall(url: url)
-    }
-    
-    func getUpcomingMovies(page: Int) -> AnyPublisher<[Movie], Error> {
-        guard let url = URL(string: "\(baseUrl)/movie/upcoming?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
+    func getMoviesByCategory(category: String, page: Int) -> AnyPublisher<[Movie], Error> {
+        guard let url = URL(string: "\(baseUrl)/movie/\(category)?api_key=052510607330f148f377a72d1f5d8d26&language=en-US&page=\(page)") else {
             return Fail(error: APIError.invalidRequestError("URL invalid"))
                 .eraseToAnyPublisher()
         }

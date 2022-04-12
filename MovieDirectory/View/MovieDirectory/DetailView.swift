@@ -19,60 +19,13 @@ struct DetailView: View {
     var body: some View {
         ScrollView {
             VStack {
-                AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.backdropPath ?? "")")) { phase in
-                    if let image = phase.image {
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: UIScreen.main.bounds.size.width)
-                    } else if phase.error != nil {
-                        Spacer()
-                        
-                        EmptyView()
-                            .frame(width: UIScreen.main.bounds.size.width, height: 200)
-                        
-                        Spacer()
-                    } else {
-                        Spacer()
-                        
-                        ProgressView()
-                            .frame(width: UIScreen.main.bounds.size.width, height: 200)
-                        
-                        Spacer()
-                    }
-                }
+                BackdropView()
                 
                 MoviePoster(path: viewModel.movie.posterPath ?? "")
                 .offset(y: -100)
                 .padding(.bottom, -100)
                 
-                Group {
-                    Text(viewModel.movie.title)
-                        .font(.title2)
-                        .bold()
-                        .multilineTextAlignment(.center)
-                    
-                    Text("Released on: \(viewModel.getDateFromString(date: viewModel.movie.releaseDate).formatted(date: .long, time: .omitted))")
-                        .foregroundColor(.gray)
-                        .font(.subheadline)
-                    
-                    HStack {
-                        ForEach(viewModel.genres) { genre in
-                            if viewModel.movie.genreIds.contains(genre.id) {
-                                Text(genre.name)
-                                    .font(.caption)
-                                    .bold()
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 4.0)
-                                    .background(.black)
-                                    .cornerRadius(8)
-                            }
-                        }
-                    }.onAppear(perform: viewModel.getAllGenres)
-                    
-                    Text(viewModel.movie.overview)
-                }
-                .padding([.top, .leading, .trailing])
-                
+                MovieDescriptionView()
             }
             .navigationTitle("Detail")
             .navigationBarTitleDisplayMode(.inline)
@@ -96,6 +49,60 @@ struct DetailView: View {
                 viewModel.getWishlistStatus(title: viewModel.movie.title)
             }
         }
+    }
+    
+    @ViewBuilder private func BackdropView() -> some View {
+        AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie.backdropPath ?? "")")) { phase in
+            if let image = phase.image {
+                image.resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.size.width)
+            } else if phase.error != nil {
+                Spacer()
+                
+                EmptyView()
+                    .frame(width: UIScreen.main.bounds.size.width, height: 200)
+                
+                Spacer()
+            } else {
+                Spacer()
+                
+                ProgressView()
+                    .frame(width: UIScreen.main.bounds.size.width, height: 200)
+                
+                Spacer()
+            }
+        }
+    }
+    
+    @ViewBuilder private func MovieDescriptionView() -> some View {
+        Group {
+            Text(viewModel.movie.title)
+                .font(.title2)
+                .bold()
+                .multilineTextAlignment(.center)
+            
+            Text("Released on: \(viewModel.getDateFromString(date: viewModel.movie.releaseDate).formatted(date: .long, time: .omitted))")
+                .foregroundColor(.gray)
+                .font(.subheadline)
+            
+            HStack {
+                ForEach(viewModel.genres) { genre in
+                    if viewModel.movie.genreIds.contains(genre.id) {
+                        Text(genre.name)
+                            .font(.caption)
+                            .bold()
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 4.0)
+                            .background(.black)
+                            .cornerRadius(8)
+                    }
+                }
+            }.onAppear(perform: viewModel.getAllGenres)
+            
+            Text(viewModel.movie.overview)
+        }
+        .padding([.top, .leading, .trailing])
     }
 }
 
